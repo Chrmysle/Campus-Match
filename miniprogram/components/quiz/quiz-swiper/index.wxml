@@ -1,0 +1,106 @@
+<!-- components/quiz/quiz-swiper/index.wxml — 动态问卷滑动卡片 -->
+<wxs src="index.wxs" module="h" />
+<view class="swiper-container">
+
+  <!-- 题目卡片 -->
+  <view wx:if="{{currentQ}}" class="q-card glass-card {{animOut ? 'q-card-out' : 'q-card-in'}}">
+    <!-- 题头 -->
+    <view class="q-header">
+      <text class="q-emoji">{{currentQ.emoji}}</text>
+      <text class="q-progress text-xs text-muted">{{currentIndex + 1}}/{{totalInStage}}</text>
+    </view>
+
+    <!-- 题目文字 -->
+    <text class="q-text text-lg text-medium">{{currentQ.question}}</text>
+
+    <!-- Slider -->
+    <view wx:if="{{currentQ.type === 'slider'}}" class="q-slider-area">
+      <slider
+        min="{{currentQ.min}}"
+        max="{{currentQ.max}}"
+        step="{{currentQ.step}}"
+        value="{{answers[currentQ.id] !== undefined ? answers[currentQ.id] : 50}}"
+        activeColor="#C4A484"
+        backgroundColor="#E8DCD0"
+        block-size="24"
+        block-color="#C4A484"
+        bindchange="onSliderChange"
+        show-value
+      />
+      <view class="flex-between">
+        <text class="text-xs text-muted">{{currentQ.labels[0]}}</text>
+        <text class="text-xs text-muted">{{currentQ.labels[1]}}</text>
+      </view>
+      <view class="slider-score">
+        <text class="text-xxl text-bold" style="color:#C4A484;">{{answers[currentQ.id] !== undefined ? answers[currentQ.id] : 50}}</text>
+        <text class="text-sm text-soft">分</text>
+      </view>
+    </view>
+
+    <!-- Select -->
+    <view wx:if="{{currentQ.type === 'select'}}" class="q-options">
+      <view
+        wx:for="{{currentQ.options}}"
+        wx:key="value"
+        class="q-option {{answers[currentQ.id] === item.value ? 'q-option-sel' : ''}}"
+        bindtap="onSelect"
+        data-value="{{item.value}}"
+      >
+        <text class="option-label text-md">{{item.label}}</text>
+        <text wx:if="{{item.sub}}" class="option-sub text-xs text-soft">{{item.sub}}</text>
+      </view>
+    </view>
+
+    <!-- MultiSelect -->
+    <view wx:if="{{currentQ.type === 'multiSelect'}}" class="q-options">
+      <view
+        wx:for="{{currentQ.options}}"
+        wx:key="value"
+        class="q-option q-option-multi {{h.isSelected(answers[currentQ.id], item.value)}}"
+        bindtap="onMultiToggle"
+        data-value="{{item.value}}"
+      >
+        <text class="option-check text-md">{{h.checkMark(answers[currentQ.id], item.value)}}</text>
+        <text class="option-label text-md">{{item.label}}</text>
+      </view>
+    </view>
+
+    <!-- TextInput -->
+    <view wx:if="{{currentQ.type === 'textInput'}}" class="q-textarea">
+      <textarea
+        class="q-input"
+        value="{{answers[currentQ.id] || ''}}"
+        placeholder="{{currentQ.placeholder}}"
+        maxlength="{{currentQ.maxLength || 60}}"
+        bindinput="onTextInput"
+        bindblur="onTextBlur"
+        auto-height
+      />
+      <text class="text-xs text-muted char-count">{{h.textLength(answers[currentQ.id])}}/{{currentQ.maxLength || 60}}</text>
+    </view>
+
+    <!-- 导航 -->
+    <view class="q-nav">
+      <glass-button
+        wx:if="{{currentIndex > 0}}"
+        text="← 上一题"
+        type="ghost"
+        size="sm"
+        bindtap="goPrev"
+      />
+      <view style="flex:1;"></view>
+      <glass-button
+        text="{{isLast ? '✨ 完成本阶段' : '下一题 →'}}"
+        type="primary"
+        size="md"
+        bindtap="goNext"
+      />
+    </view>
+  </view>
+
+  <!-- 完成状态 -->
+  <view wx:else class="q-done flex-col flex-center" style="padding:80rpx 0;">
+    <text class="text-xxl">✅</text>
+    <text class="text-md text-soft mt-sm">本阶段已完成</text>
+  </view>
+</view>

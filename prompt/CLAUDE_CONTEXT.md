@@ -351,7 +351,7 @@ C. match_pool（每周匹配结果放榜存储表）JSON{
       "score": 85,               // 综合匹配分
       "highlightTags": ["夜猫子 🦉", "Valorant 🎮"], // 共同高光标签（可解释性支持）
       "scheduleSync": true,      // 作息硬过滤同步状态
-      "campusSync": true         // 校区硬过滤同步状态
+      "campusLink": true         // 校区硬过滤同步状态
     }
   ],
   "revealed": false,             // 本周卡片是否已开榜曝光给该用户

@@ -1,0 +1,90 @@
+/* pages/chat/chat.wxss — 匹配详情 & 破冰 */
+.page-container {
+  padding: 32rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.match-banner {
+  padding: 48rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(212, 200, 180, 0.25) 0%, rgba(255, 255, 255, 0.7) 100%);
+}
+
+.partner-card {
+  padding: 32rpx;
+}
+
+.partner-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8D4C4 0%, #D4C4B0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+}
+
+.avatar-emoji {
+  font-size: 52rpx;
+}
+
+.partner-ai-bubble {
+  background: linear-gradient(135deg, rgba(196, 164, 132, 0.15) 0%, rgba(232, 212, 196, 0.1) 100%);
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.12);
+}
+
+.ai-text {
+  font-size: 26rpx;
+  color: #3D322D;
+  line-height: 1.6;
+}
+
+.partner-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.contact-area {
+  padding-top: 24rpx;
+  border-top: 2rpx solid rgba(180, 160, 140, 0.12);
+}
+
+.contact-display {
+  padding: 20rpx 24rpx;
+  background: rgba(247, 244, 239, 0.7);
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.15);
+}
+
+/* 破冰 */
+.ice-breaker {
+  padding: 28rpx 32rpx;
+}
+
+.ice-item {
+  padding: 16rpx 20rpx;
+  background: rgba(196, 212, 196, 0.2);
+  border-radius: 16rpx;
+  border-left: 6rpx solid #8CB88C;
+}
+
+.ice-text {
+  color: #3D5A3D;
+  line-height: 1.5;
+}
+
+/* 安全操作 */
+.safety-actions {
+  display: flex;
+  gap: 20rpx;
+  justify-content: center;
+  padding: 32rpx 0;
+}

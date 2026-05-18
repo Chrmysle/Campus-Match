@@ -1,0 +1,18 @@
+<!-- components/match/ice-breaker/index.wxml — 破冰锦囊 -->
+<view class="ice-container glass-card">
+  <view class="ice-header flex-between">
+    <text class="text-md text-bold">💡 破冰小锦囊</text>
+    <view class="refresh-btn" bindtap="onRefresh">
+      <text class="text-xs" style="color:#C4A484;">🔄 换一条</text>
+    </view>
+  </view>
+
+  <view wx:for="{{breakers}}" wx:key="*this" class="ice-item mt-md">
+    <view class="ice-dot"></view>
+    <text class="ice-text text-sm">{{item}}</text>
+  </view>
+
+  <view wx:if="{{breakers.length === 0}}" class="text-sm text-muted mt-md">
+    暂无破冰建议，试着主动打招呼吧！
+  </view>
+</view>

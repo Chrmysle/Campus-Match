@@ -1,0 +1,6 @@
+<view class="glass-btn glass-btn-{{type}} glass-btn-{{size}} {{disabled || loading ? 'glass-btn-disabled' : ''}}" catchtap="onTap">
+  <text wx:if="{{loading}}" class="btn-loading">...</text>
+  <text wx:elif="{{icon !== ''}}" class="btn-icon">{{icon}}</text>
+  <text class="btn-text">{{text}}</text>
+  <slot></slot>
+</view>

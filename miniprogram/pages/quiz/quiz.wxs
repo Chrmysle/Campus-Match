@@ -1,0 +1,32 @@
+// quiz.wxs — 辅助函数，处理 WXML 中不支持的 JS 表达式
+function textLength(str) {
+  return (str || '').length;
+}
+
+function progressWidth(current, total) {
+  return ((current / total) * 100) + '%';
+}
+
+function indexOf(arr, value) {
+  if (!arr) return -1;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === value) return i;
+  }
+  return -1;
+}
+
+function isSelected(arr, value) {
+  return indexOf(arr, value) > -1 ? 'quiz-option-selected' : '';
+}
+
+function checkMark(arr, value) {
+  return indexOf(arr, value) > -1 ? '✅' : '☐';
+}
+
+module.exports = {
+  textLength: textLength,
+  progressWidth: progressWidth,
+  indexOf: indexOf,
+  isSelected: isSelected,
+  checkMark: checkMark
+};

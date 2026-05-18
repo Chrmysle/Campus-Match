@@ -1,142 +1,383 @@
-/**index.wxss**/
-
-page {
-  padding-top: 54rpx;
-  background-color: #f6f6f6;
-  padding-bottom: 60rpx;
+/* pages/index/index.wxss — 匹配大厅 */
+.page-container {
+  padding: 32rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.container {
-  font-family: PingFang SC;
+/* ===== 英雄区（未提交状态） ===== */
+.not-submitted-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.title {
-  font-family: PingFang SC;
-  font-weight: 500;
-  color: #000000;
-  font-size: 44rpx;
-  margin-bottom: 40rpx;
+.hero-section {
+  text-align: center;
+  padding-top: 60rpx;
 }
-.function_title {
-  font-family: PingFang SC;
-  font-weight: 500;
-  color: #000000;
+
+.hero-emoji {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+}
+
+.hero-title {
+  font-size: 48rpx;
+  color: #3D322D;
+  letter-spacing: 2rpx;
+}
+
+.hero-subtitle {
+  margin-top: 16rpx;
+  line-height: 1.6;
+  max-width: 500rpx;
+}
+
+.hero-join-btn {
+  margin-top: 48rpx;
+  padding: 28rpx 80rpx;
+  background: linear-gradient(135deg, #C4A484 0%, #B8956E 100%);
+  border-radius: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  box-shadow: 0 8rpx 32rpx rgba(196, 164, 132, 0.35);
+  transition: all 0.2s ease;
+}
+
+.hero-join-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+.hero-join-emoji {
+  font-size: 40rpx;
+}
+
+.hero-join-text {
   font-size: 36rpx;
-  text-align: left;
-  width: 93%;
-  margin-top: 50rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+  letter-spacing: 4rpx;
 }
 
-.top_tip {
-  font-size: 28rpx;
-  font-family: PingFang SC;
-  font-weight: 400;
-  color: #888888;
-  margin-bottom: 28rpx;
+/* 人格画像预览 */
+.personality-preview {
+  width: 100%;
+  padding: 28rpx;
+  box-sizing: border-box;
 }
 
-.examples_container {
+.preview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+/* ===== 等待状态（已提交本周偏好） ===== */
+.waiting-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.completed-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.submitted-banner {
+  padding: 32rpx;
+  background: rgba(196, 212, 196, 0.3);
+  border: 2rpx solid rgba(160, 200, 160, 0.3);
+}
+
+.banner-check {
+  font-size: 40rpx;
+}
+
+.weekly-summary {
+  padding: 28rpx;
+}
+
+.pref-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  padding: 12rpx 0;
+}
+
+/* ===== 匹配状态（卡片滑动） ===== */
+.matching-page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 头部 */
+.hall-header {
+  padding: 24rpx 0 8rpx;
+}
+
+/* 卡片堆叠 */
+.card-stack {
+  position: relative;
+}
+
+.buddy-card {
+  padding: 32rpx;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+  border-radius: 32rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.2);
+  box-shadow: 0 12rpx 40rpx rgba(80, 60, 40, 0.12);
+  position: relative;
+}
+
+/* AI 微名片气泡 */
+.card-ai-bubble {
+  background: linear-gradient(135deg, rgba(196, 164, 132, 0.18) 0%, rgba(232, 212, 196, 0.12) 100%);
+  border-radius: 24rpx 24rpx 24rpx 6rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 24rpx;
+  position: relative;
+  border: 2rpx solid rgba(180, 160, 140, 0.16);
+}
+
+.ai-bubble-text {
+  font-size: 26rpx;
+  color: #3D322D;
+  line-height: 1.6;
+}
+
+.ai-bubble-tail {
+  position: absolute;
+  bottom: -12rpx;
+  left: 32rpx;
+  width: 0;
+  height: 0;
+  border-left: 14rpx solid transparent;
+  border-right: 14rpx solid transparent;
+  border-top: 14rpx solid rgba(196, 164, 132, 0.18);
+}
+
+/* 头像 */
+.card-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E8D4C4 0%, #D4C4B0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4rpx 16rpx rgba(80, 60, 40, 0.1);
+}
+
+.avatar-emoji {
+  font-size: 52rpx;
+}
+
+/* 标签行 */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+/* 子类别标签 */
+.card-sub-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+/* 匹配信息 */
+.card-match-info {
+  padding: 16rpx 20rpx;
+  background: rgba(247, 244, 239, 0.6);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4rpx;
+}
+
+/* 三档按钮 */
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx solid rgba(180, 160, 140, 0.12);
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 20rpx 8rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2rpx solid rgba(180, 160, 140, 0.15);
+  transition: all 0.2s ease;
+}
+
+.action-btn:active {
+  transform: scale(0.94);
+  opacity: 0.8;
+}
+
+.action-pass { background: rgba(232, 196, 196, 0.25); }
+.action-meet { background: rgba(212, 208, 196, 0.35); }
+.action-heart { background: rgba(196, 212, 196, 0.35); }
+
+.action-emoji {
+  font-size: 40rpx;
+}
+
+.action-label {
+  font-size: 22rpx;
+  color: #8B7D72;
+  font-weight: 500;
+}
+
+/* 全部完成 */
+.all-done {
+  padding: 48rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.all-done-extras {
+  display: flex;
+  gap: 16rpx;
+}
+
+/* 倒计时组件 */
+.countdown-box {
+  padding: 32rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 400rpx;
+}
+
+/* 滑动手势过渡动画 */
+.swipe-transition {
+  transition: transform 0.28s ease-in, opacity 0.28s ease-in;
+}
+
+/* ===== 模拟匹配测试区 ===== */
+.mock-test-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.mock-test-divider {
+  padding: 8rpx 0;
+}
+
+.mock-test-hint {
+  opacity: 0.6;
+}
+
+/* ===== 模拟匹配结果 ===== */
+.mock-results {
+  width: 100%;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.result-item {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+  border-radius: 24rpx;
+  padding: 28rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.2);
+  box-shadow: 0 8rpx 32rpx rgba(80, 60, 40, 0.08);
   display: flex;
   flex-direction: column;
   gap: 16rpx;
-  width: 100%;
-  align-items: center;
 }
 
-.example_item {
-  border: 3rpx solid #e5e5e5;
-  border-radius: 10rpx;
-  padding: 24rpx;
-  width: 90%;
-  background-color: #fff;
+.result-item-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16rpx;
 }
 
-.power {
-  margin-top: 30rpx;
-  border-radius: 5px;
-  background-color: white;
-  width: 93%;
-  padding-bottom: 1rpx;
+.result-avatar {
+  font-size: 48rpx;
 }
 
-.power_info {
-  display: flex;
-  padding: 30rpx 25rpx;
-  align-items: center;
-  justify-content: space-between;
+.result-score {
+  margin-left: auto;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #C4A484;
 }
 
-.power_info_more {
-  width: 30rpx;
-  height: 30rpx;
-  transform: rotate(90deg);
-}
-
-.power_info_less {
-  width: 30rpx;
-  height: 30rpx;
-  transform: rotate(270deg);
-}
-
-.power_info_text {
+.result-item-detail {
   display: flex;
   flex-direction: column;
+  gap: 8rpx;
+  font-size: 26rpx;
+  color: #5D4E42;
+  padding: 12rpx 16rpx;
+  background: rgba(247, 244, 239, 0.5);
+  border-radius: 12rpx;
 }
 
-.power_info_text_title {
-  margin-bottom: 10rpx;
-  font-weight: 400;
-  font-size: 32rpx;
-  display: flex;
-  align-items: center;
-  font-family: 'PingFang SC';
-  color: #000;
-}
-
-.power_info_text_tag {
-  margin-left: 20rpx;
-  background-color: #fbe0e0;
-  color: #e54545;
-  padding: 0 7px;
-  font-size: 14px;
-  vertical-align: middle;
-  border-radius: 3px;
-}
-
-.power_info_text_tip {
-  color: rgba(0, 0, 0, 0.6);
+.result-status {
   font-size: 28rpx;
-  padding-right: 30rpx;
+  font-weight: 500;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  text-align: center;
 }
 
-.power_item {
-  padding: 30rpx 25rpx;
-  display: flex;
-  justify-content: space-between;
+.result-status.matched {
+  background: rgba(196, 212, 196, 0.3);
+  color: #3D6B3D;
 }
 
-.power_item_title {
-  font-size: 28rpx;
-  color: rgba(0, 0, 0, 0.9);
+.result-status.rejected {
+  background: rgba(232, 196, 196, 0.25);
+  color: #8B4D4D;
 }
 
-.power_item_icon {
-  width: 30rpx;
-  height: 30rpx;
+.result-status.passed {
+  background: rgba(200, 196, 192, 0.2);
+  color: #7D6B5D;
 }
 
-.line {
-  width: 95%;
-  margin: 0 auto;
-  height: 2rpx;
-  background-color: rgba(0, 0, 0, 0.1);
+.result-contact-btn {
+  margin-top: 4rpx;
+  padding: 16rpx 32rpx;
+  background: linear-gradient(135deg, #C4A484 0%, #B8956E 100%);
+  color: white;
+  font-size: 26rpx;
+  font-weight: 500;
+  border-radius: 40rpx;
+  border: none;
+  text-align: center;
 }
 
-.environment {
-  color: rgba(0, 0, 0, 0.4);
-  font-size: 24rpx;
-  margin-top: 25%;
+.result-contact-btn:active {
+  opacity: 0.8;
 }

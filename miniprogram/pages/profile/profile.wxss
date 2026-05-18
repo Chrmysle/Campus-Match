@@ -1,0 +1,323 @@
+/* pages/profile/profile.wxss — 个人中心（衬线文艺版） */
+.profile-page {
+  padding: 0 32rpx 48rpx;
+  box-sizing: border-box;
+}
+
+/* ===== 封面头像区 ===== */
+.profile-hero {
+  position: relative;
+  margin: 0 -32rpx;
+  padding: 0 32rpx 48rpx;
+}
+
+.profile-hero-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 260rpx;
+  background: linear-gradient(135deg, #E8DCD0 0%, #D4C4B0 40%, #C4A484 100%);
+  border-radius: 0 0 48rpx 48rpx;
+  opacity: 0.4;
+}
+
+.profile-hero-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 48rpx;
+}
+
+.profile-avatar-ring {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  padding: 8rpx;
+  background: linear-gradient(135deg, #C4A484, #E8D4C4);
+  box-shadow: 0 8rpx 32rpx rgba(196, 164, 132, 0.3);
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-emoji {
+  font-size: 72rpx;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.profile-name {
+  font-family: Georgia, 'Songti SC', STSong, SimSun, serif;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #3D322D;
+  letter-spacing: 2rpx;
+}
+
+.profile-edit-badge {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(196, 164, 132, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #8B7D72;
+}
+
+.profile-edit-badge:active {
+  background: rgba(196, 164, 132, 0.4);
+}
+
+.profile-email {
+  font-size: 24rpx;
+  color: #B8AFA6;
+  margin-top: 8rpx;
+}
+
+.profile-badges {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+/* ===== 编辑昵称 ===== */
+.name-edit-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 16rpx;
+  width: 100%;
+  max-width: 400rpx;
+}
+
+.name-input {
+  width: 100%;
+  padding: 20rpx 28rpx;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2rpx solid rgba(196, 164, 132, 0.3);
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  color: #3D322D;
+  text-align: center;
+  box-sizing: border-box;
+  font-family: Georgia, 'Songti SC', STSong, SimSun, serif;
+}
+
+/* ===== 通用段落卡片 ===== */
+.profile-section {
+  padding: 32rpx;
+  margin-top: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 34rpx;
+  color: #3D322D;
+}
+
+.section-subtitle {
+  font-size: 20rpx;
+  color: #C4A484;
+  text-transform: uppercase;
+  letter-spacing: 4rpx;
+  margin-left: 16rpx;
+  opacity: 0.6;
+}
+
+/* ===== 人格条 ===== */
+.big-five-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.bf-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.bf-label {
+  width: 80rpx;
+  font-size: 24rpx;
+  color: #8B7D72;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.bf-track {
+  flex: 1;
+  height: 12rpx;
+  background: rgba(232, 220, 208, 0.6);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.bf-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4C4B0, #C4A484);
+  border-radius: 6rpx;
+  transition: width 0.6s ease;
+}
+
+.bf-val {
+  width: 72rpx;
+  font-size: 22rpx;
+  color: #C4A484;
+  font-weight: 500;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ===== 标签 ===== */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+
+.tag-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.tag-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  border-bottom: 2rpx solid rgba(180, 160, 140, 0.08);
+}
+
+.tag-remove-btn {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: rgba(232, 180, 180, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #A04040;
+}
+
+.tag-edit-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  flex-wrap: wrap;
+}
+
+/* ===== 偏好 ===== */
+.pref-display {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.pref-label {
+  font-size: 26rpx;
+  color: #8B7D72;
+}
+
+.pref-value {
+  font-size: 28rpx;
+  color: #3D322D;
+  font-weight: 500;
+}
+
+.pref-modal-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60, 40, 20, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.pref-modal {
+  width: 580rpx;
+  padding: 48rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pref-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  width: 100%;
+  margin-top: 32rpx;
+}
+
+.pref-option {
+  padding: 24rpx 32rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2rpx solid rgba(180, 160, 140, 0.15);
+  font-size: 28rpx;
+  color: #3D322D;
+}
+
+.pref-option:active {
+  transform: scale(0.97);
+}
+
+.pref-selected {
+  background: rgba(196, 164, 132, 0.2);
+  border-color: #C4A484;
+  font-weight: 500;
+}
+
+/* ===== 本周偏好 ===== */
+.pref-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.pref-detail {
+  font-size: 24rpx;
+  color: #8B7D72;
+  margin-top: 16rpx;
+  padding: 12rpx 16rpx;
+  background: rgba(247, 244, 239, 0.5);
+  border-radius: 12rpx;
+}
+
+.pref-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+/* ===== 底部 ===== */
+.profile-footer {
+  display: flex;
+  justify-content: center;
+  padding: 48rpx 0 16rpx;
+}

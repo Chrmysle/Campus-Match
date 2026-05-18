@@ -1,0 +1,9 @@
+{
+  "name": "saveQuizResults",
+  "version": "1.0.0",
+  "description": "persist quiz results to cloud database",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "loginUser",
+  "version": "1.0.0",
+  "description": "用户登录：邮箱 + 密码验证",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -1,0 +1,117 @@
+<!-- pages/quiz/quiz.wxml — 动态问卷容器 -->
+<wxs src="../../pages/quiz/quiz.wxs" module="helper" />
+<nav-bar showBack="{{false}}" title="性格问卷" />
+<view class="page-container">
+
+  <!-- 阶段进度条 -->
+  <view class="quiz-progress-bar">
+    <view class="progress-track">
+      <view class="progress-fill" style="width:{{helper.progressWidth(currentStage, stages.length)}};"></view>
+    </view>
+    <view class="flex-row gap-sm mt-sm">
+      <text wx:for="{{stages}}" wx:key="key" class="stage-dot {{index <= currentStage ? 'stage-dot-active' : ''}} {{index === currentStage ? 'stage-dot-current' : ''}}">
+        {{item.icon}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 阶段标题 -->
+  <view class="quiz-stage-header mt-lg">
+    <text class="text-xxl">{{stages[currentStage].icon}}</text>
+    <text class="font-title text-xl mt-sm">{{stages[currentStage].title}}</text>
+    <text class="text-sm text-soft mt-sm">{{stages[currentStage].subtitle}}</text>
+  </view>
+
+  <!-- 当前题目卡片 -->
+  <view wx:if="{{currentQ}}" class="quiz-card glass-card mt-lg">
+    <view class="quiz-q-header">
+      <text class="quiz-q-emoji">{{currentQ.emoji}}</text>
+      <text class="text-xs text-muted">Q{{currentQIndex + 1}}/{{stageTotal}}</text>
+    </view>
+
+    <text class="quiz-q-text text-lg text-medium">{{currentQ.question}}</text>
+
+    <!-- Slider 类型 -->
+    <view wx:if="{{currentQ.type === 'slider'}}" class="quiz-slider-area mt-lg">
+      <slider
+        min="{{currentQ.min}}"
+        max="{{currentQ.max}}"
+        step="{{currentQ.step}}"
+        value="{{answers[currentQ.id] || 50}}"
+        activeColor="#C4A484"
+        backgroundColor="#E8DCD0"
+        block-size="24"
+        block-color="#C4A484"
+        bindchange="onSliderChange"
+        data-id="{{currentQ.id}}"
+        show-value
+      />
+      <view class="flex-between mt-sm">
+        <text class="text-xs text-muted">{{currentQ.labels[0]}}</text>
+        <text class="text-xs text-muted">{{currentQ.labels[1]}}</text>
+      </view>
+      <view class="slider-value-display">
+        <text class="text-xxl text-bold" style="color:#C4A484;">{{answers[currentQ.id] || 50}}</text>
+        <text class="text-sm text-soft">分</text>
+      </view>
+    </view>
+
+    <!-- Select 类型 -->
+    <view wx:if="{{currentQ.type === 'select'}}" class="quiz-options mt-lg">
+      <view
+        wx:for="{{currentQ.options}}"
+        wx:key="value"
+        class="quiz-option {{answers[currentQ.id] === item.value ? 'quiz-option-selected' : ''}}"
+        bindtap="onSelect"
+        data-id="{{currentQ.id}}"
+        data-value="{{item.value}}"
+      >
+        <text class="option-label">{{item.label}}</text>
+        <text wx:if="{{item.sub}}" class="option-sub text-xs text-soft">{{item.sub}}</text>
+      </view>
+    </view>
+
+    <!-- MultiSelect 类型 -->
+    <view wx:if="{{currentQ.type === 'multiSelect'}}" class="quiz-options mt-lg">
+      <view
+        wx:for="{{currentQ.options}}"
+        wx:key="value"
+        class="quiz-option multi-option {{answers[currentQ.id] && helper.indexOf(answers[currentQ.id], item.value) > -1 ? 'quiz-option-selected' : ''}}"
+        bindtap="onMultiSelectToggle"
+        data-id="{{currentQ.id}}"
+        data-value="{{item.value}}"
+      >
+        <text class="option-check">{{helper.checkMark(answers[currentQ.id], item.value)}}</text>
+        <text class="option-label">{{item.label}}</text>
+      </view>
+    </view>
+
+    <!-- TextInput 类型 -->
+    <view wx:if="{{currentQ.type === 'textInput'}}" class="quiz-textarea mt-lg">
+      <textarea
+        class="quiz-input"
+        value="{{answers[currentQ.id] || ''}}"
+        placeholder="{{currentQ.placeholder}}"
+        maxlength="{{currentQ.maxLength || 60}}"
+        bindinput="onTextInput"
+        data-id="{{currentQ.id}}"
+        auto-height
+      />
+      <text class="text-xs text-muted" style="text-align:right;display:block;margin-top:8rpx;">
+        {{helper.textLength(answers[currentQ.id])}}/{{currentQ.maxLength || 60}}
+      </text>
+    </view>
+
+    <!-- 导航按钮 -->
+    <view class="quiz-nav mt-lg">
+      <glass-button wx:if="{{currentQIndex > 0}}" text="上一题" type="ghost" size="sm" bindtap="onPrev" />
+      <glass-button
+        text="{{isLastQ && isLastStage ? '✨ 完成问卷' : '下一题 →'}}"
+        type="primary"
+        size="md"
+        bindtap="onNext"
+        style="flex:1;"
+      />
+    </view>
+  </view>
+</view>

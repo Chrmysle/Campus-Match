@@ -1,0 +1,36 @@
+/* components/match/ice-breaker/index.wxss */
+.ice-container {
+  padding: 28rpx 32rpx;
+}
+
+.ice-header {
+  width: 100%;
+}
+
+.refresh-btn {
+  padding: 8rpx 16rpx;
+}
+
+.ice-item {
+  display: flex;
+  gap: 14rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(196, 212, 196, 0.2);
+  border-radius: 16rpx;
+  border-left: 6rpx solid #8CB88C;
+  align-items: flex-start;
+}
+
+.ice-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #8CB88C;
+  margin-top: 10rpx;
+  flex-shrink: 0;
+}
+
+.ice-text {
+  color: #3D5A3D;
+  line-height: 1.5;
+}

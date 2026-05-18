@@ -1,0 +1,31 @@
+.glass-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.22);
+  box-shadow: 0 4rpx 16rpx rgba(80, 60, 40, 0.06);
+  color: #3D322D;
+  font-size: 30rpx;
+  font-weight: 500;
+  padding: 20rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.glass-btn:active { transform: scale(0.96); opacity: 0.82; }
+
+.glass-btn-primary { background: #C4A484; color: #FFFFFF; border-color: transparent; }
+.glass-btn-ghost { background: rgba(255, 255, 255, 0.4); border: 2rpx solid rgba(180, 160, 140, 0.3); }
+.glass-btn-danger { background: rgba(232, 180, 180, 0.65); color: #A04040; border-color: rgba(200, 140, 140, 0.3); }
+.glass-btn-success { background: rgba(180, 210, 180, 0.6); color: #3D5A3D; border-color: rgba(140, 180, 140, 0.3); }
+
+.glass-btn-sm { padding: 12rpx 28rpx; font-size: 24rpx; border-radius: 16rpx; }
+.glass-btn-lg { padding: 24rpx 56rpx; font-size: 34rpx; border-radius: 32rpx; }
+
+.glass-btn-disabled { opacity: 0.45; pointer-events: none; }
+
+.btn-loading { letter-spacing: 4rpx; }
+.btn-icon { font-size: 32rpx; }
+.btn-text { white-space: nowrap; }

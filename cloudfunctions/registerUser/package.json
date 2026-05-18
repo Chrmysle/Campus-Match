@@ -1,0 +1,9 @@
+{
+  "name": "registerUser",
+  "version": "1.0.0",
+  "description": "注册新用户：验证邮箱验证码 → 创建账号",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

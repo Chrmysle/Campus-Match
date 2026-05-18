@@ -1,0 +1,175 @@
+<!-- pages/weekly-pref/weekly-pref.wxml — 本周搭子偏好问卷 -->
+<nav-bar showBack="{{true}}" title="每周偏好" />
+<view class="page-container">
+
+  <!-- 步骤指示器 -->
+  <view class="step-indicator">
+    <view class="step-dots">
+      <view wx:for="{{totalSteps}}" wx:key="*this" class="step-dot {{item <= currentStep ? 'active' : ''}}"></view>
+    </view>
+    <text class="step-label text-xs text-muted">步骤 {{currentStep}} / {{totalSteps}}</text>
+  </view>
+
+  <!-- ===== 步骤 1: 选择搭子类型 ===== -->
+  <view wx:if="{{currentStep === 1}}" class="step-content">
+    <view class="step-header">
+      <text class="text-xxl">🎯</text>
+      <text class="text-xl font-title mt-sm">这周想找什么搭子？</text>
+      <text class="text-sm text-soft mt-sm">选择你感兴趣的搭子类型（最多 {{module ? module.maxVibeTypes : 3}} 种）</text>
+    </view>
+
+    <view class="vibe-type-grid mt-lg">
+      <view
+        wx:for="{{vibeTypeList}}"
+        wx:key="key"
+        class="vibe-type-card {{item.selected ? 'selected' : ''}}"
+        bindtap="onToggleVibeType"
+        data-key="{{item.key}}"
+        style="border-color: {{item.selected ? item.color : 'transparent'}};"
+      >
+        <text class="vibe-type-emoji">{{item.emoji}}</text>
+        <text class="vibe-type-label">{{item.label}}</text>
+        <view wx:if="{{item.selected}}" class="check-mark">✓</view>
+      </view>
+    </view>
+
+    <view class="step-footer">
+      <glass-button text="下一步" type="primary" size="md" bindtap="onNextStep1" />
+    </view>
+  </view>
+
+  <!-- ===== 步骤 2: 子类别选择 ===== -->
+  <view wx:elif="{{currentStep === 2}}" class="step-content">
+    <view class="step-header">
+      <text class="text-xxl">🔍</text>
+      <text class="text-xl font-title mt-sm">具体想做什么？</text>
+      <text class="text-sm text-soft mt-sm">每种类型最多选 {{module ? module.maxSubCategories : 3}} 项</text>
+    </view>
+
+    <!-- 类型标签导航 -->
+    <view class="sub-tab-bar mt-md">
+      <view
+        wx:for="{{subCategoryTabs}}"
+        wx:key="key"
+        class="sub-tab {{index === activeSubTab ? 'active' : ''}}"
+        data-index="{{index}}"
+        bindtap="onSwitchSubTab"
+      >
+        <text>{{item.emoji}} {{item.label}}</text>
+      </view>
+    </view>
+
+    <!-- 子类别选项 -->
+    <view wx:if="{{subCategoryTabs[activeSubTab]}}" class="sub-category-grid mt-md">
+      <view
+        wx:for="{{subCategoryTabs[activeSubTab].subCategories}}"
+        wx:key="value"
+        class="sub-chip {{item.selected ? 'selected' : ''}}"
+        data-key="{{item.value}}"
+        bindtap="onToggleSubCategory"
+      >
+        <text>{{item.emoji}}</text>
+        <text class="sub-chip-label">{{item.label}}</text>
+        <text wx:if="{{item.selected}}" class="sub-check">✓</text>
+      </view>
+    </view>
+
+    <view class="step-footer">
+      <glass-button text="上一步" type="ghost" size="sm" bindtap="onPrevStep2" />
+      <glass-button text="下一步" type="primary" size="md" bindtap="onNextStep2" />
+    </view>
+  </view>
+
+  <!-- ===== 步骤 3: 额外偏好 ===== -->
+  <view wx:elif="{{currentStep === 3}}" class="step-content">
+    <view class="step-header">
+      <text class="text-xxl">⚙️</text>
+      <text class="text-xl font-title mt-sm">更多偏好设置</text>
+    </view>
+
+    <!-- 期待偏好滑杆 -->
+    <view class="pref-section mt-lg">
+      <text class="pref-question">你对搭子的期待更偏向？</text>
+      <view class="slider-wrapper mt-sm">
+        <text class="slider-label">技能互补型</text>
+        <slider
+          value="{{expectation}}"
+          min="0" max="100" step="10"
+          bindchange="onExpectationChange"
+          block-size="16"
+          activeColor="#C4A484"
+          backgroundColor="#E8E0D8"
+        />
+        <text class="slider-label">兴趣同频型</text>
+      </view>
+      <text class="text-xs text-muted" style="text-align:center;">当前：{{expectation === 50 ? '中间' : expectation < 50 ? '偏技能互补' : '偏兴趣同频'}}</text>
+    </view>
+
+    <!-- 活动频率 -->
+    <view class="pref-section mt-lg">
+      <text class="pref-question">你希望每周一起活动的频率？</text>
+      <view class="freq-options mt-sm">
+        <view
+          wx:for="{{frequencyOptions}}"
+          wx:key="value"
+          class="freq-option {{item.value === frequency ? 'selected' : ''}}"
+          data-value="{{item.value}}"
+          bindtap="onFrequencySelect"
+        >
+          <text class="freq-label">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="step-footer">
+      <glass-button text="上一步" type="ghost" size="sm" bindtap="onPrevStep3" />
+      <glass-button text="确认" type="primary" size="md" bindtap="onNextStep3" />
+    </view>
+  </view>
+
+  <!-- ===== 步骤 4: 确认提交 ===== -->
+  <view wx:elif="{{currentStep === 4}}" class="step-content">
+    <view class="step-header">
+      <text class="text-xxl">📋</text>
+      <text class="text-xl font-title mt-sm">确认你的本周偏好</text>
+    </view>
+
+    <view class="review-section mt-lg glass-card">
+      <view class="review-item">
+        <text class="review-label">搭子类型</text>
+        <view class="review-tags">
+          <vibe-badge
+            wx:for="{{selectedVibeTypeObjects}}"
+            wx:key="value"
+            emoji="{{item.emoji}}"
+            text="{{item.label}}"
+            color="{{item.color}}"
+          />
+        </view>
+      </view>
+
+      <view class="review-item mt-md" wx:for="{{selectedVibeTypeObjects}}" wx:key="value">
+        <text class="review-label">{{item.emoji}} {{item.label}}</text>
+        <view class="review-chips">
+          <text class="review-chip" wx:for="{{selectedSubCategories[item.value] || defaultEmptyArray}}" wx:key="value">{{item2.emoji}} {{item2.label}}</text>
+        </view>
+      </view>
+
+      <view class="review-item mt-md">
+        <text class="review-label">对搭子的期待</text>
+        <text class="review-value">{{expectation >= 70 ? '偏兴趣同频' : expectation <= 30 ? '偏技能互补' : '中间平衡'}} ({{expectation}})</text>
+      </view>
+
+      <view class="review-item mt-md">
+        <text class="review-label">活动频率</text>
+        <text class="review-value">{{frequencyLabel}}</text>
+      </view>
+    </view>
+
+    <view class="step-footer">
+      <glass-button text="修改" type="ghost" size="sm" bindtap="onPrevStep4" />
+      <glass-button text="提交本周偏好" type="primary" size="lg" bindtap="onSubmit" loading="{{submitting}}" />
+    </view>
+  </view>
+
+</view>

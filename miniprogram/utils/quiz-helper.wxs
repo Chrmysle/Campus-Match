@@ -1,0 +1,29 @@
+// quiz-helper.wxs — WXML 数据绑定辅助函数
+// WXML 不支持括号分组 (.length、.indexOf() 等)
+
+function textLength(str) {
+  return (str || '').length;
+}
+
+function progressWidth(current, total) {
+  return ((current / total) * 100) + '%';
+}
+
+function indexOf(arr, value) {
+  if (!arr) return -1;
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === value) return i;
+  }
+  return -1;
+}
+
+function checkMark(arr, value) {
+  return indexOf(arr, value) > -1 ? '✅' : '☐';
+}
+
+module.exports = {
+  textLength: textLength,
+  progressWidth: progressWidth,
+  indexOf: indexOf,
+  checkMark: checkMark
+};

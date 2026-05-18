@@ -1,0 +1,9 @@
+{
+  "name": "generateAiSummary",
+  "version": "1.0.0",
+  "description": "AI生成用户微名片摘要",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

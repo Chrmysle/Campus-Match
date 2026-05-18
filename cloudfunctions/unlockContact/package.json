@@ -1,0 +1,9 @@
+{
+  "name": "unlockContact",
+  "version": "1.0.0",
+  "description": "匹配成功后解密联系方式",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

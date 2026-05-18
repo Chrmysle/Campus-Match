@@ -1,0 +1,26 @@
+.vibe-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 20rpx;
+  border-radius: 40rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.78);
+  border: 2rpx solid rgba(180, 160, 140, 0.18);
+  color: #3D322D;
+  gap: 6rpx;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.vibe-badge-active {
+  background: #C4A484;
+  color: #FFFFFF;
+  border-color: transparent;
+}
+
+.vibe-badge-sm { padding: 4rpx 14rpx; font-size: 20rpx; border-radius: 30rpx; }
+.vibe-badge-lg { padding: 12rpx 28rpx; font-size: 26rpx; border-radius: 48rpx; }
+
+.badge-emoji { font-size: 24rpx; line-height: 1; }
+.badge-text { line-height: 1.2; }

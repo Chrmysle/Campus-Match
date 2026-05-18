@@ -1,0 +1,155 @@
+<!-- pages/profile/profile.wxml — 个人中心（衬线文艺版） -->
+<nav-bar title="CampusLink" />
+
+<view class="profile-page">
+
+  <view wx:if="{{!isVerified}}" class="flex-center" style="height:60vh;">
+    <text class="text-lg text-soft">请先登录校园账号</text>
+  </view>
+
+  <block wx:else>
+    <!-- ===== 封面头像区 ===== -->
+    <view class="profile-hero">
+      <view class="profile-hero-bg"></view>
+      <view class="profile-hero-content">
+        <view class="profile-avatar-ring">
+          <view class="profile-avatar">
+            <text class="avatar-emoji">{{userInfo.avatar}}</text>
+          </view>
+        </view>
+        <view class="profile-name-row">
+          <text wx:if="{{!editingName}}" class="profile-name">{{userInfo.name}}</text>
+          <view wx:if="{{!editingName}}" class="profile-edit-badge" bindtap="onStartEditName">
+            <text>✎</text>
+          </view>
+        </view>
+        <!-- 昵称编辑 -->
+        <view wx:if="{{editingName}}" class="name-edit-row">
+          <input class="name-input" type="entry" placeholder="输入昵称" value="{{nameInput}}" bindinput="onNameInput" maxlength="20" />
+          <view class="flex-row gap-sm" style="justify-content:center;margin-top:12rpx;">
+            <glass-button text="取消" type="ghost" size="sm" bindtap="onCancelEditName" />
+            <glass-button text="保存" type="primary" size="sm" bindtap="onSaveName" />
+          </view>
+        </view>
+        <text class="profile-email">{{userInfo.email}}</text>
+        <view class="profile-badges">
+          <vibe-badge emoji="📍" text="{{userInfo.campus}}" size="sm" />
+          <vibe-badge emoji="🎯" text="{{vibeLabel}}" size="sm" />
+        </view>
+      </view>
+    </view>
+
+    <!-- ===== 人格画像 ===== -->
+    <view class="glass-card profile-section">
+      <view class="section-header">
+        <text class="section-title font-title">人格画像</text>
+        <text class="section-subtitle">Personality</text>
+      </view>
+      <view class="big-five-bars">
+        <view wx:for="{{bigFiveList}}" wx:for-index="idx" wx:key="key" class="bf-bar-row">
+          <text class="bf-label">{{item.label}}</text>
+          <view class="bf-track">
+            <view class="bf-fill" style="width:{{item.width}}%;"></view>
+          </view>
+          <text class="bf-val">{{item.percent}}%</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ===== 我的标签 ===== -->
+    <view class="glass-card profile-section">
+      <view class="section-header">
+        <text class="section-title font-title">我的标签</text>
+        <glass-button
+          wx:if="{{!editMode}}"
+          text="编辑"
+          type="ghost"
+          size="sm"
+          bindtap="onToggleEdit"
+        />
+      </view>
+
+      <view wx:if="{{!editMode}}" class="tag-cloud">
+        <vibe-badge wx:for="{{displayTags}}" wx:key="key" emoji="{{item.emoji}}" text="{{item.label}}" size="md" />
+        <view wx:if="{{displayTags.length === 0}}" class="text-sm text-muted" style="padding:16rpx 0;">完成问卷后自动生成</view>
+      </view>
+
+      <!-- 编辑模式 -->
+      <view wx:if="{{editMode}}" class="tag-edit">
+        <view wx:for="{{editableTags}}" wx:key="key" class="tag-edit-row">
+          <vibe-badge emoji="{{item.emoji}}" text="{{item.label}}" size="md" />
+          <view class="tag-remove-btn" bindtap="onRemoveTag" data-index="{{index}}">
+            <text>✕</text>
+          </view>
+        </view>
+        <view class="tag-edit-actions">
+          <glass-button text="+ 添加" type="ghost" size="sm" bindtap="onAddCustomTag" />
+          <glass-button text="取消" type="ghost" size="sm" bindtap="onToggleEdit" />
+          <glass-button text="保存" type="primary" size="sm" bindtap="onSaveTags" />
+        </view>
+      </view>
+    </view>
+
+    <!-- ===== 匹配偏好 ===== -->
+    <view class="glass-card profile-section">
+      <view class="section-header">
+        <text class="section-title font-title">匹配偏好</text>
+        <glass-button text="设置" type="ghost" size="sm" bindtap="onTogglePrefModal" />
+      </view>
+      <view class="pref-display">
+        <text class="pref-label">性别偏好</text>
+        <text class="pref-value">
+          {{genderPreference.type === 'any' ? '🌐 无偏好' : ''}}
+          {{genderPreference.type === 'same' ? '👥 优先同性' : ''}}
+          {{genderPreference.type === 'opposite' ? '💑 优先异性' : ''}}
+        </text>
+      </view>
+
+      <!-- 偏好弹窗 -->
+      <view wx:if="{{showPrefModal}}" class="pref-modal-mask" bindtap="onTogglePrefModal">
+        <view class="pref-modal glass-card" catchtap="">
+          <text class="section-title font-title">搭子性别偏好</text>
+          <view class="pref-options">
+            <view wx:for="{{['any','same','opposite']}}" wx:key="*this"
+              class="pref-option {{genderPreference.type === item ? 'pref-selected' : ''}}"
+              bindtap="onGenderPrefSelect" data-type="{{item}}">
+              <text>{{item === 'any' ? '🌐 无偏好' : item === 'same' ? '👥 优先同性' : '💑 优先异性'}}</text>
+            </view>
+          </view>
+          <glass-button text="确认" type="primary" size="md" bindtap="onSavePrefs" style="margin-top:32rpx;width:100%;" />
+        </view>
+      </view>
+    </view>
+
+    <!-- ===== 本周偏好 ===== -->
+    <view class="glass-card profile-section">
+      <view class="section-header">
+        <text class="section-title font-title">📋 本周搭子偏好</text>
+      </view>
+      <view wx:if="{{hasWeeklyPref}}">
+        <view class="pref-badges">
+          <vibe-badge wx:for="{{weeklyVibeTypes}}" wx:key="value" emoji="{{item.emoji}}" text="{{item.label}}" size="sm" />
+        </view>
+        <view wx:if="{{weeklyPref.additionalPrefs}}" class="pref-detail">
+          <text>期待 {{weeklyPref.additionalPrefs.expectation || 50}}% ·
+          频率：{{weeklyPref.additionalPrefs.frequency === 'daily' ? '每天' : weeklyPref.additionalPrefs.frequency === 'weekly2-3' ? '每周2-3次' : weeklyPref.additionalPrefs.frequency === 'weekly1' ? '每周1次' : '随缘'}}</text>
+        </view>
+        <view class="pref-actions">
+          <glass-button text="修改偏好" type="primary" size="sm" bindtap="onJoinWeeklyMatch" />
+          <glass-button text="清除" type="ghost" size="sm" bindtap="onClearWeeklyPref" />
+        </view>
+      </view>
+      <view wx:else>
+        <text class="text-sm text-soft">尚未参与本周匹配</text>
+        <view class="mt-sm">
+          <glass-button text="🎯 参与本周匹配" type="primary" size="sm" bindtap="onJoinWeeklyMatch" />
+        </view>
+      </view>
+    </view>
+
+    <!-- ===== 底部 ===== -->
+    <view class="profile-footer">
+      <glass-button text="🔄 重新测试" type="ghost" size="md" bindtap="onRetakeQuiz" />
+    </view>
+  </block>
+</view>

@@ -1,0 +1,9 @@
+{
+  "name": "weeklyMatchEngine",
+  "version": "1.0.0",
+  "description": "每周一21:00定时匹配引擎",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

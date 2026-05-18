@@ -1,14 +1,39 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/example/index"
+    "pages/profile/profile",
+    "pages/quiz/quiz",
+    "pages/weekly-pref/weekly-pref",
+    "pages/chat/chat",
+    "pages/login/login"
   ],
   "window": {
-    "backgroundColor": "#F6F6F6",
+    "backgroundColor": "#F7F4EF",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F6F6F6",
-    "navigationBarTitleText": "云开发 QuickStart",
+    "navigationStyle": "custom",
+    "navigationBarBackgroundColor": "#F7F4EF",
+    "navigationBarTitleText": "CampusLink · 校园搭子",
     "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#B8A89A",
+    "selectedColor": "#C4A484",
+    "backgroundColor": "#F7F4EF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/tabs/home.png",
+        "selectedIconPath": "assets/tabs/home-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/tabs/profile.png",
+        "selectedIconPath": "assets/tabs/profile-active.png"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",

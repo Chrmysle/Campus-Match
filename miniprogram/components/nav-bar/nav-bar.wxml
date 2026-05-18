@@ -1,0 +1,14 @@
+<!-- components/nav-bar/nav-bar.wxml -->
+<view class="nav-bar" style="padding-top: {{statusBarHeight}}px;">
+  <view class="nav-inner">
+    <view wx:if="{{showBack}}" class="nav-back" bindtap="onBack">
+      <text class="nav-back-icon">←</text>
+    </view>
+    <view class="nav-brand">
+      <text class="nav-ornament">✦</text>
+      <text class="nav-title">{{title}}</text>
+    </view>
+    <slot name="right" />
+  </view>
+  <view class="nav-divider"></view>
+</view>

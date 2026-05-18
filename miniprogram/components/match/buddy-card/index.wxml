@@ -1,0 +1,64 @@
+<!-- components/match/buddy-card/index.wxml — 匹配候选人卡片 -->
+<view wx:if="{{candidate}}" class="buddy-card glass-card {{compact ? 'buddy-compact' : ''}}" animation="{{animStyle}}" bindtap="onCardTap">
+
+  <!-- AI 微名片气泡 -->
+  <view class="card-ai-bubble">
+    <text class="ai-text">{{candidate.aiSummary}}</text>
+    <view class="ai-tail"></view>
+  </view>
+
+  <!-- 主体 -->
+  <view class="card-body">
+    <view class="flex-row gap-md">
+      <!-- 头像 -->
+      <view class="card-avatar">
+        <text class="avatar-emoji">{{candidate.avatar || defaultAvatar}}</text>
+      </view>
+
+      <!-- 基础信息 -->
+      <view class="flex-col">
+        <text class="text-lg text-bold">{{candidate.name}}</text>
+        <text class="text-sm text-soft">{{candidate.campus}} · {{candidate.scheduleLabel}}</text>
+
+        <!-- 匹配分 -->
+        <view class="score-row flex-row gap-sm mt-sm">
+          <text class="text-xs text-muted">匹配度</text>
+          <text class="text-md text-bold" style="color:{{vibeTheme.colorDark || defaultColor}};">{{candidate.score}}分</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 高光标签 -->
+    <view class="card-tags mt-md">
+      <vibe-badge
+        wx:for="{{candidate.highlightTags}}"
+        wx:key="*this"
+        wx:if="{{index < 5}}"
+        emoji="{{item.emoji}}"
+        text="{{item.label}}"
+        size="sm"
+      />
+    </view>
+
+    <!-- 匹配解释 -->
+    <view class="match-explain mt-md">
+      <text class="text-xs text-soft">共同标签：{{candidate.sharedTags}}</text>
+    </view>
+  </view>
+
+  <!-- 三档操作按钮 -->
+  <view wx:if="{{showActions}}" class="card-actions">
+    <view class="act-btn act-pass" bindtap="onVote" data-action="PASS">
+      <text class="act-emoji">❌</text>
+      <text class="act-label">不感兴趣</text>
+    </view>
+    <view class="act-btn act-meet" bindtap="onVote" data-action="MEET">
+      <text class="act-emoji">🤝</text>
+      <text class="act-label">可以认识</text>
+    </view>
+    <view class="act-btn act-heart" bindtap="onVote" data-action="HEART">
+      <text class="act-emoji">💚</text>
+      <text class="act-label">感兴趣</text>
+    </view>
+  </view>
+</view>

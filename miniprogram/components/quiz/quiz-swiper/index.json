@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "glass-button": "/components/ui/glass-button/index",
+    "vibe-badge": "/components/ui/vibe-badge/index"
+  }
+}

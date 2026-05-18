@@ -1,0 +1,132 @@
+/* components/quiz/quiz-swiper/index.wxss */
+.swiper-container {
+  position: relative;
+  width: 100%;
+}
+
+.q-card {
+  padding: 40rpx 32rpx;
+  transition: all 0.25s ease;
+}
+
+.q-card-in {
+  animation: slideIn 0.25s ease;
+}
+
+.q-card-out {
+  animation: slideOut 0.2s ease forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(80rpx); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-80rpx); }
+}
+
+.q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.q-emoji {
+  font-size: 48rpx;
+}
+
+.q-progress {
+  background: rgba(180, 160, 140, 0.15);
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+}
+
+.q-text {
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+}
+
+/* Slider */
+.q-slider-area {
+  padding: 20rpx 0;
+}
+
+.slider-score {
+  text-align: center;
+  margin-top: 12rpx;
+}
+
+/* Options */
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.q-option {
+  display: flex;
+  flex-direction: column;
+  padding: 24rpx 28rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.65);
+  border: 2rpx solid rgba(180, 160, 140, 0.16);
+  transition: all 0.18s ease;
+}
+
+.q-option:active {
+  transform: scale(0.97);
+}
+
+.q-option-sel {
+  background: rgba(196, 164, 132, 0.18);
+  border-color: #C4A484;
+}
+
+.q-option-multi {
+  flex-direction: row;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.option-check {
+  flex-shrink: 0;
+}
+
+.option-sub {
+  margin-top: 6rpx;
+}
+
+/* Textarea */
+.q-textarea {
+  margin-top: 24rpx;
+}
+
+.q-input {
+  width: 100%;
+  min-height: 120rpx;
+  padding: 24rpx;
+  background: rgba(247, 244, 239, 0.7);
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.18);
+  font-size: 28rpx;
+  color: #3D322D;
+  box-sizing: border-box;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  margin-top: 8rpx;
+}
+
+/* Nav */
+.q-nav {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+  margin-top: 40rpx;
+}

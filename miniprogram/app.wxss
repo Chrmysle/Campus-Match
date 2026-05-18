@@ -1,27 +1,198 @@
-/**app.wxss**/
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  box-sizing: border-box;
-} 
+/** app.wxss — CampusLink 衬线文艺设计系统 **/
 
-button {
-  background: initial;
-}
-
-button:focus{
-  outline: 0;
-}
-
-button::after{
-  border: none;
-}
-
-
+/* ===== CSS 变量 / 设计令牌 ===== */
 page {
-  background: #f6f6f6;
+  --color-bg: #F7F4EF;
+  --color-surface: rgba(255, 255, 255, 0.72);
+  --color-surface-strong: rgba(255, 255, 255, 0.88);
+  --color-primary: #C4A484;
+  --color-primary-dark: #B8956E;
+  --color-primary-soft: #D4C4B0;
+  --color-accent-rose: #E8C4C4;
+  --color-accent-sage: #C4D4C4;
+  --color-accent-sky: #C4D0E8;
+  --color-accent-sunset: #E8D4C4;
+  --color-text: #3D322D;
+  --color-text-soft: #8B7D72;
+  --color-text-muted: #B8AFA6;
+  --color-border: rgba(180, 160, 140, 0.18);
+  --color-border-strong: rgba(160, 140, 120, 0.32);
+  --color-glass-highlight: rgba(255, 255, 255, 0.55);
+  --color-glass-shadow: rgba(80, 60, 40, 0.08);
+  --radius-sm: 16rpx;
+  --radius-md: 24rpx;
+  --radius-lg: 32rpx;
+  --radius-xl: 40rpx;
+  --shadow-sm: 0 4rpx 16rpx rgba(80, 60, 40, 0.06);
+  --shadow-md: 0 8rpx 32rpx rgba(80, 60, 40, 0.10);
+  --shadow-lg: 0 16rpx 48rpx rgba(80, 60, 40, 0.14);
+  --font-xs: 22rpx;
+  --font-sm: 26rpx;
+  --font-md: 30rpx;
+  --font-lg: 34rpx;
+  --font-xl: 40rpx;
+  --font-xxl: 48rpx;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-serif: Georgia, 'Songti SC', STSong, SimSun, serif;
+  --font-sans: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  font-family: var(--font-serif);
+  color: var(--color-text);
+  box-sizing: border-box;
 }
+
+/* ===== 全局按钮重置 ===== */
+button {
+  background: initial;
+  border: none;
+  padding: 0;
+  line-height: inherit;
+  font-size: inherit;
+}
+
+button:focus { outline: 0; }
+button::after { border: none; }
+
+/* ===== Liquid Glass 卡片 ===== */
+.glass-card {
+  background: var(--color-surface);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: var(--radius-lg);
+  border: 2rpx solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, var(--color-glass-highlight) 0%, transparent 100%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  pointer-events: none;
+}
+
+.glass-card-sm { border-radius: var(--radius-md); }
+.glass-card-lg { border-radius: var(--radius-xl); }
+
+/* ===== Glass 按钮 ===== */
+.glass-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-strong);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-radius: var(--radius-md);
+  border: 2rpx solid var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+  font-size: var(--font-md);
+  font-weight: var(--font-weight-medium);
+  padding: 20rpx 40rpx;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, var(--color-glass-highlight) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.glass-btn:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+.glass-btn-primary {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-color: transparent;
+}
+
+.glass-btn-sm { padding: 12rpx 28rpx; font-size: var(--font-sm); border-radius: var(--radius-sm); }
+.glass-btn-lg { padding: 24rpx 56rpx; font-size: var(--font-lg); border-radius: var(--radius-lg); }
+
+/* ===== Vibe 徽章 ===== */
+.vibe-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 20rpx;
+  border-radius: 40rpx;
+  font-size: var(--font-xs);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-surface-strong);
+  border: 2rpx solid var(--color-border);
+  gap: 6rpx;
+}
+
+/* ===== 通用布局 ===== */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-container {
+  padding: 32rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ===== 文字层级 ===== */
+.text-muted { color: var(--color-text-muted); }
+.text-soft { color: var(--color-text-soft); }
+.text-xs { font-size: var(--font-xs); }
+.text-sm { font-size: var(--font-sm); }
+.text-md { font-size: var(--font-md); }
+.text-lg { font-size: var(--font-lg); }
+.text-xl { font-size: var(--font-xl); }
+.text-xxl { font-size: var(--font-xxl); }
+.text-bold { font-weight: var(--font-weight-semibold); }
+.text-medium { font-weight: var(--font-weight-medium); }
+
+/* ===== 衬线字体 ===== */
+.font-sans { font-family: var(--font-sans); }
+.font-serif { font-family: var(--font-serif); }
+.font-brand { font-family: var(--font-serif); letter-spacing: 2rpx; }
+.font-title { font-family: var(--font-serif); letter-spacing: 2rpx; font-weight: 600; }
+
+/* ===== 间距 ===== */
+.mt-sm { margin-top: 16rpx; }
+.mt-md { margin-top: 32rpx; }
+.mt-lg { margin-top: 48rpx; }
+.mb-sm { margin-bottom: 16rpx; }
+.mb-md { margin-bottom: 32rpx; }
+.gap-sm { gap: 12rpx; }
+.gap-md { gap: 24rpx; }

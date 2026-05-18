@@ -1,0 +1,154 @@
+<!-- pages/login/login.wxml — 登录 / 注册 -->
+<nav-bar title="CampusLink" />
+<view class="login-page">
+
+  <!-- Logo 区 -->
+  <view class="login-hero">
+    <text class="text-xxl">🏫</text>
+    <text class="login-title">CampusLink</text>
+    <text class="text-sm text-soft mt-sm">校园搭子匹配 · 找到你的同频伙伴</text>
+  </view>
+
+  <view class="login-form glass-card mt-lg">
+
+    <!-- ===== 模式切换标签 ===== -->
+    <view class="tab-bar flex-row">
+      <view class="tab-item {{mode === 'login' ? 'tab-active' : ''}}" bindtap="switchMode" data-mode="login">
+        <text class="text-md text-medium">登录</text>
+      </view>
+      <view class="tab-item {{mode === 'register' ? 'tab-active' : ''}}" bindtap="switchMode" data-mode="register">
+        <text class="text-md text-medium">注册</text>
+      </view>
+    </view>
+
+    <!-- ===== 登录模式 ===== -->
+    <block wx:if="{{mode === 'login'}}">
+      <view class="form-group mt-lg">
+        <text class="form-label text-sm text-medium">校园邮箱</text>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="studentID@buaa.edu.cn"
+          value="{{email}}"
+          bindinput="onEmailInput"
+        />
+      </view>
+
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">密码</text>
+        <input
+          class="form-input"
+          password
+          placeholder="请输入密码"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+      </view>
+
+      <view class="form-group mt-lg">
+        <glass-button
+          text="{{submitting ? '登录中...' : '登录'}}"
+          type="primary"
+          size="lg"
+          loading="{{submitting}}"
+          disabled="{{submitting}}"
+          width="100%"
+          bindtap="onLogin"
+        />
+      </view>
+
+      <view class="form-footer mt-md">
+        <text class="text-xs text-soft">还没有账号？</text>
+        <text class="text-xs" style="color:#C4A484;" bindtap="switchMode" data-mode="register">去注册</text>
+      </view>
+    </block>
+
+    <!-- ===== 注册模式 ===== -->
+    <block wx:else>
+      <view class="form-group mt-lg">
+        <text class="form-label text-sm text-medium">校园邮箱</text>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="studentID@buaa.edu.cn"
+          value="{{email}}"
+          bindinput="onEmailInput"
+        />
+      </view>
+
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">验证码</text>
+        <view class="flex-row gap-sm">
+          <input
+            class="form-input form-input-code"
+            type="number"
+            placeholder="6位验证码"
+            maxlength="6"
+            value="{{code}}"
+            bindinput="onCodeInput"
+          />
+          <view
+            class="code-btn {{countdown > 0 ? 'code-btn-disabled' : ''}}"
+            bindtap="onSendCode"
+          >
+            <text class="text-sm">{{countdown > 0 ? countdown + 's' : '获取验证码'}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">设置密码</text>
+        <input
+          class="form-input"
+          password
+          placeholder="至少6位密码"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+      </view>
+
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">确认密码</text>
+        <input
+          class="form-input"
+          password
+          placeholder="再次输入密码"
+          value="{{confirmPwd}}"
+          bindinput="onConfirmPwdInput"
+        />
+      </view>
+
+      <!-- 协议 -->
+      <view class="form-group mt-md agreement-row">
+        <checkbox-group bindchange="onAgreementChange">
+          <label class="flex-row gap-sm">
+            <checkbox value="agreed" color="#C4A484" checked="{{agreedToTerms}}" />
+            <text class="text-xs text-soft">我已阅读并同意 <text style="color:#C4A484;">《用户协议》</text></text>
+          </label>
+        </checkbox-group>
+      </view>
+
+      <view class="form-group mt-lg">
+        <glass-button
+          text="{{submitting ? '注册中...' : '注册'}}"
+          type="primary"
+          size="lg"
+          loading="{{submitting}}"
+          disabled="{{submitting}}"
+          width="100%"
+          bindtap="onRegister"
+        />
+      </view>
+
+      <view class="form-footer mt-md">
+        <text class="text-xs text-soft">已有账号？</text>
+        <text class="text-xs" style="color:#C4A484;" bindtap="switchMode" data-mode="login">去登录</text>
+      </view>
+    </block>
+
+  </view>
+
+  <text class="text-xs text-muted" style="margin-top:48rpx;text-align:center;">
+    仅限本校师生使用 · 你的隐私安全是我们的首要任务
+  </text>
+</view>

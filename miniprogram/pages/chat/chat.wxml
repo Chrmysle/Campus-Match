@@ -1,0 +1,84 @@
+<!-- pages/chat/chat.wxml — 匹配详情 & 破冰页 -->
+<nav-bar showBack="{{true}}" title="搭子详情" />
+<view class="page-container">
+
+  <view wx:if="{{!isVerified}}" class="flex-center" style="height:100vh;">
+    <text class="text-lg text-soft">请先登录校园账号</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:elif="{{matchStatus === 'loading'}}" class="flex-center" style="height:60vh;">
+    <text class="text-lg text-soft">加载匹配信息...</text>
+  </view>
+
+  <!-- 关系已断裂 -->
+  <view wx:elif="{{matchStatus === 'severed'}}" class="flex-center flex-col" style="height:60vh;">
+    <text class="text-xxl">🔒</text>
+    <text class="text-lg text-bold mt-md">关系已解除</text>
+    <text class="text-sm text-soft mt-sm">你与对方的匹配已永久断开</text>
+  </view>
+
+  <!-- 匹配成功 -->
+  <block wx:elif="{{matchStatus === 'matched'}}">
+    <!-- 成功横幅 -->
+    <view class="match-banner glass-card">
+      <text class="text-xxl">🎉</text>
+      <text class="text-xl text-bold mt-sm">恭喜匹配成功！</text>
+      <text class="text-sm text-soft mt-sm">缘分算法认定你们是天选搭子</text>
+    </view>
+
+    <!-- 对方 AI 微名片 -->
+    <view wx:if="{{partner}}" class="partner-card glass-card mt-md">
+      <view class="flex-row gap-md">
+        <view class="partner-avatar">
+          <text class="avatar-emoji">{{partner.avatar || defaultAvatar}}</text>
+        </view>
+        <view class="flex-col">
+          <text class="text-lg text-bold">{{partner.name}}</text>
+          <text class="text-sm text-soft">{{partner.campus}} · {{partner.scheduleLabel}}</text>
+        </view>
+      </view>
+
+      <view class="partner-ai-bubble mt-md">
+        <text class="ai-text">{{partner.aiSummary}}</text>
+      </view>
+
+      <view class="partner-tags mt-md">
+        <vibe-badge
+          wx:for="{{partner.highlightTags}}"
+          wx:key="*this"
+          emoji="{{item.emoji}}"
+          text="{{item.label}}"
+          size="sm"
+        />
+      </view>
+
+      <!-- 联系方式 -->
+      <view wx:if="{{contactUnlocked}}" class="contact-area mt-lg">
+        <view class="flex-between">
+          <text class="text-md text-bold">联系方式</text>
+          <view class="flex-row gap-sm" bindtap="onCopyContact">
+            <text class="text-sm" style="color:#C4A484;">📋 复制</text>
+          </view>
+        </view>
+        <view class="contact-display mt-sm">
+          <text class="text-md text-medium">{{contactInfo}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 破冰锦囊 -->
+    <view class="ice-breaker glass-card mt-md">
+      <text class="text-md text-bold">💡 破冰小锦囊</text>
+      <view wx:for="{{iceBreakers}}" wx:key="*this" class="ice-item mt-md">
+        <text class="ice-text text-sm">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 安全操作 -->
+    <view class="safety-actions mt-lg">
+      <glass-button text="🚫 解除匹配并拉黑" type="danger" size="sm" bindtap="onBlock" />
+      <glass-button text="⚠️ 投诉" type="ghost" size="sm" bindtap="onReport" />
+    </view>
+  </block>
+</view>
