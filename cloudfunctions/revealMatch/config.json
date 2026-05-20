@@ -1,0 +1,11 @@
+{
+  "name": "revealMatch",
+  "timeout": 300,
+  "triggers": [
+    {
+      "name": "revealMatchTrigger",
+      "type": "timer",
+      "config": "0 0 21 * * 1"
+    }
+  ]
+}

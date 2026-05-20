@@ -102,9 +102,9 @@ Page({
         wx.showToast({ title: '最多选' + maxSelect + '个', icon: 'none' });
         return;
       }
-      next = [...current, value];
+      next = current.concat([value]);
     }
-    const answers = { ...this.data.answers, [id]: next };
+    const answers = Object.assign({}, this.data.answers, { [id]: next });
     this.setData({ answers, progress: this.getAnsweredCount() });
     console.log('[quiz] multiSelect:', id, '=', next);
   },
@@ -197,6 +197,11 @@ Page({
         data: { userId, quizResults: results },
         success: function () {
           console.log('[quiz] cloud save succeeded');
+          // 触发 AI 摘要生成（含降级方案）
+          wx.cloud.callFunction({
+            name: 'generateAiSummary',
+            data: { userId, quizData: results, bio: results.rawAnswers?.x2 || '' }
+          });
         },
         fail: function (err) {
           console.error('[quiz] cloud save failed:', err);
@@ -214,17 +219,34 @@ Page({
   computeResults: function () {
     const { answers } = this.data;
 
-    const bigFive = { N: 0, E: 0, O: 0, A: 0, C: 0 };
+    // 1. 计算 facet 层面得分（0-1）
+    //    select 型选项值已是 0~1，slider 需 ÷100
+    const bigFiveFacets = {};
     QUIZ_CONFIG.personalityQuestions.forEach(q => {
       const val = answers[q.id];
-      if (val !== undefined && q.bigFiveMap) {
-        const norm = val / 100;
-        Object.keys(q.bigFiveMap).forEach(k => {
-          bigFive[k] += norm * q.bigFiveMap[k];
-        });
+      if (val !== undefined) {
+        const norm = q.type === 'slider' ? val / 100 : parseFloat(val);
+        bigFiveFacets[q.facet] = Math.max(0, Math.min(1, norm));
       }
     });
 
+    // 2. 计算 domain 得分：所属 facet 的平均值
+    const bigFive = { N: 0, E: 0, O: 0, A: 0, C: 0 };
+    const facetCounts = { N: 0, E: 0, O: 0, A: 0, C: 0 };
+    QUIZ_CONFIG.FACET_LIST.forEach(function (facetKey) {
+      const domain = QUIZ_CONFIG.FACET_DOMAIN[facetKey];
+      if (bigFiveFacets[facetKey] !== undefined) {
+        bigFive[domain] += bigFiveFacets[facetKey];
+        facetCounts[domain]++;
+      }
+    });
+    Object.keys(bigFive).forEach(function (k) {
+      bigFive[k] = facetCounts[k] > 0
+        ? Math.round((bigFive[k] / facetCounts[k]) * 100) / 100
+        : 0.5;
+    });
+
+    // 3. 标签
     const tags = [];
     Object.keys(QUIZ_CONFIG.tagMappings).forEach(key => {
       const m = QUIZ_CONFIG.tagMappings[key];
@@ -240,7 +262,8 @@ Page({
 
     const schedule = answers['s1'] || 'dayWalker';
     const campus = answers['s2'] || 'xueyuanlu';
+    const contact = answers['x3'] || '';
 
-    return { bigFive, tags, schedule, campus, rawAnswers: answers };
+    return { bigFive, bigFiveFacets, tags, schedule, campus, contact, rawAnswers: answers };
   }
 });

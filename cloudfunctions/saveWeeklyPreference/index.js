@@ -5,7 +5,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 exports.main = async (event, context) => {
-  const { userId, weekLabel, vibeTypes, subCategories, additionalPrefs } = event;
+  const { userId, weekLabel, vibeTypes, subCategories, additionalPrefs, genderPreference } = event;
 
   if (!userId || !weekLabel) {
     return { success: false, error: '缺少参数' };
@@ -22,6 +22,7 @@ exports.main = async (event, context) => {
       vibeTypes: vibeTypes || [],
       subCategories: subCategories || {},
       additionalPrefs: additionalPrefs || {},
+      genderPreference: genderPreference || 'any',
       updatedAt: db.serverDate()
     };
 
@@ -34,15 +35,20 @@ exports.main = async (event, context) => {
       await db.collection('weekly_preferences').add({ data });
     }
 
-    // 在 users 文档标记本周已提交 + 匹配状态
-    await db.collection('users').doc(userId).update({
-      data: {
-        weeklyPrefSubmitted: true,
-        weeklyPrefWeekLabel: weekLabel,
-        weeklyMatchStatus: 'submitted',
-        weeklyMatchWeekLabel: weekLabel
-      }
-    });
+    // 在 users 文档标记本周已提交 + 匹配状态 + 性别偏好 + targetVibe
+    var firstVibe = (vibeTypes && vibeTypes.length > 0) ? vibeTypes[0].value : null;
+    var updateData = {
+      weeklyPrefSubmitted: true,
+      weeklyPrefWeekLabel: weekLabel,
+      weeklyMatchStatus: 'submitted',
+      weeklyMatchWeekLabel: weekLabel,
+      genderPreference: { type: genderPreference || 'any', targetGenders: [] }
+    };
+    if (firstVibe) {
+      updateData.targetVibe = firstVibe;
+    }
+
+    await db.collection('users').doc(userId).update({ data: updateData });
 
     console.log('[saveWeeklyPreference] saved for user:', userId, 'week:', weekLabel);
     return { success: true };

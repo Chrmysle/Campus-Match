@@ -13,7 +13,7 @@ exports.main = async (event, context) => {
 
   try {
     const updateData = {};
-    const allowedFields = ['name', 'avatar', 'genderPreference'];
+    const allowedFields = ['name', 'avatar', 'genderPreference', 'grade', 'college', 'contact'];
     allowedFields.forEach(function (f) {
       if (fields[f] !== undefined) updateData[f] = fields[f];
     });

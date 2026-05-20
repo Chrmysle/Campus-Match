@@ -12,6 +12,11 @@
   align-items: center;
 }
 
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+}
+
 .hero-section {
   text-align: center;
   padding-top: 60rpx;
@@ -76,6 +81,66 @@
   gap: 12rpx;
 }
 
+/* ===== 暂停状态（周一 18:00 后未提交） ===== */
+.closed-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.closed-banner {
+  padding: 32rpx;
+  background: rgba(232, 196, 196, 0.25);
+  border: 2rpx solid rgba(200, 160, 160, 0.3);
+}
+
+.banner-icon {
+  font-size: 40rpx;
+}
+
+/* ===== 处理中状态（周一 18:00-21:00） ===== */
+.processing-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.processing-banner {
+  padding: 40rpx 32rpx;
+  text-align: center;
+}
+
+.processing-emoji {
+  font-size: 80rpx;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.processing-bar {
+  width: 100%;
+  height: 8rpx;
+  background: rgba(180, 160, 140, 0.15);
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin-top: 32rpx;
+}
+
+.processing-fill {
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, #C4A484, #D4C4B0, #C4A484);
+  border-radius: 4rpx;
+  animation: pulse-fill 2s ease-in-out infinite;
+}
+
+@keyframes pulse-fill {
+  0% { transform: translateX(-30%); opacity: 0.6; }
+  50% { transform: translateX(70%); opacity: 1; }
+  100% { transform: translateX(-30%); opacity: 0.6; }
+}
+
 /* ===== 等待状态（已提交本周偏好） ===== */
 .waiting-page {
   display: flex;
@@ -108,62 +173,8 @@
   padding: 12rpx 0;
 }
 
-/* ===== 匹配状态（卡片滑动） ===== */
-.matching-page {
-  display: flex;
-  flex-direction: column;
-}
-
-/* 头部 */
-.hall-header {
-  padding: 24rpx 0 8rpx;
-}
-
-/* 卡片堆叠 */
-.card-stack {
-  position: relative;
-}
-
-.buddy-card {
-  padding: 32rpx;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24rpx);
-  -webkit-backdrop-filter: blur(24rpx);
-  border-radius: 32rpx;
-  border: 2rpx solid rgba(180, 160, 140, 0.2);
-  box-shadow: 0 12rpx 40rpx rgba(80, 60, 40, 0.12);
-  position: relative;
-}
-
-/* AI 微名片气泡 */
-.card-ai-bubble {
-  background: linear-gradient(135deg, rgba(196, 164, 132, 0.18) 0%, rgba(232, 212, 196, 0.12) 100%);
-  border-radius: 24rpx 24rpx 24rpx 6rpx;
-  padding: 20rpx 24rpx;
-  margin-bottom: 24rpx;
-  position: relative;
-  border: 2rpx solid rgba(180, 160, 140, 0.16);
-}
-
-.ai-bubble-text {
-  font-size: 26rpx;
-  color: #3D322D;
-  line-height: 1.6;
-}
-
-.ai-bubble-tail {
-  position: absolute;
-  bottom: -12rpx;
-  left: 32rpx;
-  width: 0;
-  height: 0;
-  border-left: 14rpx solid transparent;
-  border-right: 14rpx solid transparent;
-  border-top: 14rpx solid rgba(196, 164, 132, 0.18);
-}
-
-/* 头像 */
-.card-avatar {
+/* ===== 头像（通用） ===== */
+.match-avatar {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
@@ -179,87 +190,112 @@
   font-size: 52rpx;
 }
 
-/* 标签行 */
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
+/* ===== 匹配结果卡片（completed 状态） ===== */
+.match-list {
+  width: 100%;
 }
 
-/* 子类别标签 */
-.card-sub-categories {
+.match-result-card {
+  padding: 28rpx;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10rpx;
+  flex-direction: column;
 }
 
-/* 匹配信息 */
-.card-match-info {
-  padding: 16rpx 20rpx;
+.match-score {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.match-summary {
+  padding: 12rpx 16rpx;
+  background: rgba(247, 244, 239, 0.5);
+  border-radius: 12rpx;
+  line-height: 1.5;
+}
+
+/* ===== 匹配解读 + 破冰锦囊 ===== */
+.match-insight-block {
+  padding: 24rpx;
   background: rgba(247, 244, 239, 0.6);
   border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.12);
 }
 
-/* 三档按钮 */
-.card-actions {
+.insight-section {
   display: flex;
-  gap: 16rpx;
-  margin-top: 32rpx;
-  padding-top: 24rpx;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.insight-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #5D4E44;
+}
+
+.insight-text {
+  font-size: 26rpx;
+  color: #6B5D52;
+  line-height: 1.6;
+}
+
+.insight-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.insight-ice-item {
+  font-size: 26rpx;
+  color: #7B6D62;
+  line-height: 1.7;
+  padding: 4rpx 0;
+}
+
+.match-contact {
+  padding-top: 16rpx;
   border-top: 2rpx solid rgba(180, 160, 140, 0.12);
 }
 
-.action-btn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8rpx;
-  padding: 20rpx 8rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.6);
-  border: 2rpx solid rgba(180, 160, 140, 0.15);
-  transition: all 0.2s ease;
-}
-
-.action-btn:active {
-  transform: scale(0.94);
-  opacity: 0.8;
-}
-
-.action-pass { background: rgba(232, 196, 196, 0.25); }
-.action-meet { background: rgba(212, 208, 196, 0.35); }
-.action-heart { background: rgba(196, 212, 196, 0.35); }
-
-.action-emoji {
-  font-size: 40rpx;
-}
-
-.action-label {
-  font-size: 22rpx;
+.contact-label {
+  font-size: 26rpx;
   color: #8B7D72;
   font-weight: 500;
 }
 
-/* 全部完成 */
-.all-done {
-  padding: 48rpx 32rpx;
+.contact-value-box {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-}
-
-.all-done-extras {
-  display: flex;
   gap: 16rpx;
+  margin-top: 8rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(180, 160, 140, 0.15);
 }
 
-/* 倒计时组件 */
+.contact-value {
+  flex: 1;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #3D322D;
+  letter-spacing: 2rpx;
+}
+
+.contact-copy {
+  padding: 8rpx 24rpx;
+  background: linear-gradient(135deg, #C4A484 0%, #B8956E 100%);
+  color: white;
+  font-size: 24rpx;
+  font-weight: 500;
+  border-radius: 30rpx;
+}
+
+.contact-copy:active {
+  opacity: 0.8;
+}
+
+/* ===== 倒计时组件 ===== */
 .countdown-box {
   padding: 32rpx 48rpx;
   display: flex;
@@ -269,115 +305,70 @@
   min-width: 400rpx;
 }
 
-/* 滑动手势过渡动画 */
-.swipe-transition {
-  transition: transform 0.28s ease-in, opacity 0.28s ease-in;
+/* ===== 开发者工具 ===== */
+.dev-tools-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* ===== 模拟匹配测试区 ===== */
+.dev-tools-header {
+  width: 100%;
+  max-width: 500rpx;
+  padding: 12rpx 16rpx;
+  background: rgba(180, 160, 140, 0.08);
+  border-radius: 16rpx;
+  text-align: center;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.dev-tools-header:active {
+  background: rgba(180, 160, 140, 0.15);
+}
+
+.dev-tools-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx;
+  box-sizing: border-box;
+}
+
+/* 长按触发区 */
 .mock-test-section {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16rpx;
 }
 
 .mock-test-divider {
-  padding: 8rpx 0;
+  width: 100%;
+  max-width: 500rpx;
+  padding: 16rpx;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .mock-test-hint {
   opacity: 0.6;
 }
 
-/* ===== 模拟匹配结果 ===== */
-.mock-results {
+/* ===== 开发者全局工具栏 ===== */
+.dev-global-tools {
   width: 100%;
-}
-
-.result-list {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
-}
-
-.result-item {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(24rpx);
-  -webkit-backdrop-filter: blur(24rpx);
-  border-radius: 24rpx;
-  padding: 28rpx;
-  border: 2rpx solid rgba(180, 160, 140, 0.2);
-  box-shadow: 0 8rpx 32rpx rgba(80, 60, 40, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
-
-.result-item-header {
-  display: flex;
   align-items: center;
-  gap: 16rpx;
+  margin-top: 32rpx;
+  padding: 16rpx;
+  background: rgba(255, 243, 224, 0.3);
+  border-radius: 16rpx;
+  border: 2rpx dashed rgba(196, 164, 132, 0.2);
 }
 
-.result-avatar {
-  font-size: 48rpx;
-}
-
-.result-score {
-  margin-left: auto;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #C4A484;
-}
-
-.result-item-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  font-size: 26rpx;
-  color: #5D4E42;
-  padding: 12rpx 16rpx;
-  background: rgba(247, 244, 239, 0.5);
-  border-radius: 12rpx;
-}
-
-.result-status {
-  font-size: 28rpx;
-  font-weight: 500;
-  padding: 8rpx 16rpx;
-  border-radius: 12rpx;
-  text-align: center;
-}
-
-.result-status.matched {
-  background: rgba(196, 212, 196, 0.3);
-  color: #3D6B3D;
-}
-
-.result-status.rejected {
-  background: rgba(232, 196, 196, 0.25);
-  color: #8B4D4D;
-}
-
-.result-status.passed {
-  background: rgba(200, 196, 192, 0.2);
-  color: #7D6B5D;
-}
-
-.result-contact-btn {
-  margin-top: 4rpx;
-  padding: 16rpx 32rpx;
-  background: linear-gradient(135deg, #C4A484 0%, #B8956E 100%);
-  color: white;
-  font-size: 26rpx;
-  font-weight: 500;
-  border-radius: 40rpx;
-  border: none;
-  text-align: center;
-}
-
-.result-contact-btn:active {
-  opacity: 0.8;
-}
+/* ===== 开发者工具 ===== */

@@ -41,12 +41,17 @@ exports.main = async (event, context) => {
         name: user.name || email.split('@')[0],
         avatar: user.avatar || '👤',
         isVerified: true,
+        gender: user.gender || 0,
         quizResults: user.quizResults || null,
         quizDone: user.quizDone || false,
         vibeTypes: user.vibeTypes || null,
         genderPreference: user.genderPreference || null,
         weeklyMatchStatus: user.weeklyMatchStatus || null,
-        weeklyMatchWeekLabel: user.weeklyMatchWeekLabel || null
+        weeklyMatchWeekLabel: user.weeklyMatchWeekLabel || null,
+        aiSummary: user.aiSummary || '',
+        contact: user.contact || (user.quizResults && user.quizResults.contact) || '',
+        grade: user.grade || 0,
+        college: user.college || ''
       }
     };
   } catch (err) {

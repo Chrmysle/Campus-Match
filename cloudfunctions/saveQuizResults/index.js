@@ -12,14 +12,23 @@ exports.main = async (event, context) => {
   }
 
   try {
+    // 读取现有用户数据，保留 grade 和 college
+    const { data: existing } = await db.collection('users').doc(userId).get();
+    const grade = (existing && existing.grade) || 0;
+    const college = (existing && existing.college) || '';
+
     await db.collection('users').doc(userId).update({
       data: {
         quizResults,
         quizDone: true,
         bigFive: quizResults.bigFive,
+        quantitativeScores: { bigFive: quizResults.bigFive, bigFiveFacets: quizResults.bigFiveFacets },
         displayTags: quizResults.tags,
         schedule: quizResults.schedule,
-        campus: quizResults.campus
+        campus: quizResults.campus,
+        contact: quizResults.contact || '',
+        grade: grade,
+        college: college
       }
     });
 

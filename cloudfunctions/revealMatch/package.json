@@ -1,0 +1,11 @@
+{
+  "name": "revealMatch",
+  "version": "1.0.0",
+  "description": "周一 21:00 放榜：将 match_pool 标记为 revealed",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  },
+  "permissions": {
+    "openapi": []
+  }
+}

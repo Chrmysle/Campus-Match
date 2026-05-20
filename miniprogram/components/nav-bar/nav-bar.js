@@ -13,9 +13,14 @@ Component({
   lifetimes: {
     attached() {
       try {
-        const sys = wx.getSystemInfoSync();
-        this.setData({ statusBarHeight: sys.statusBarHeight || 44 });
-      } catch (e) {}
+        const win = wx.getWindowInfo();
+        this.setData({ statusBarHeight: win.statusBarHeight || 44 });
+      } catch (e) {
+        try {
+          const sys = wx.getSystemInfoSync();
+          this.setData({ statusBarHeight: sys.statusBarHeight || 44 });
+        } catch (e2) {}
+      }
     }
   },
 

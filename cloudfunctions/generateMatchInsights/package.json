@@ -1,0 +1,9 @@
+{
+  "name": "generateMatchInsights",
+  "version": "1.0.0",
+  "description": "AI生成匹配解读 + 相似点 + 破冰锦囊",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

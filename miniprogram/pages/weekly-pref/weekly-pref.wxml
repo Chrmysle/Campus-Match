@@ -2,6 +2,25 @@
 <nav-bar showBack="{{true}}" title="每周偏好" />
 <view class="page-container">
 
+  <!-- 提交已暂停（周一 18:00 后） -->
+  <block wx:if="{{!submissionOpen}}">
+    <view class="closed-overlay">
+      <view class="paused-icon">⏸️</view>
+      <text class="text-xl font-title mt-md">本周匹配已暂停</text>
+      <text class="text-sm text-soft mt-sm">本周的偏好提交已于周一 18:00 截止</text>
+      <text class="text-sm text-soft">请参与下周匹配</text>
+
+      <view class="countdown-box glass-card mt-lg">
+        <text class="text-xs text-muted">距下次匹配开放还有</text>
+        <text class="text-xxl text-bold" style="color:#C4A484;">{{closedCountdownText}}</text>
+      </view>
+      <text class="text-xs text-muted mt-sm">下次匹配时间：{{nextRevealTime}}</text>
+    </view>
+  </block>
+
+  <!-- 正常流程（提交窗口内） -->
+  <block wx:else>
+
   <!-- 步骤指示器 -->
   <view class="step-indicator">
     <view class="step-dots">
@@ -121,6 +140,37 @@
       </view>
     </view>
 
+    <!-- 性别偏好 -->
+    <view class="pref-section mt-lg">
+      <text class="pref-question">你希望搭子的性别？</text>
+      <view class="gender-options mt-sm">
+        <view
+          class="gender-option {{genderPreference === 'any' ? 'selected' : ''}}"
+          data-value="any"
+          bindtap="onGenderPrefSelect"
+        >
+          <text class="gender-emoji">🌐</text>
+          <text class="gender-label">无偏好</text>
+        </view>
+        <view
+          class="gender-option {{genderPreference === 'same' ? 'selected' : ''}}"
+          data-value="same"
+          bindtap="onGenderPrefSelect"
+        >
+          <text class="gender-emoji">👥</text>
+          <text class="gender-label">优先同性</text>
+        </view>
+        <view
+          class="gender-option {{genderPreference === 'opposite' ? 'selected' : ''}}"
+          data-value="opposite"
+          bindtap="onGenderPrefSelect"
+        >
+          <text class="gender-emoji">💑</text>
+          <text class="gender-label">优先异性</text>
+        </view>
+      </view>
+    </view>
+
     <view class="step-footer">
       <glass-button text="上一步" type="ghost" size="sm" bindtap="onPrevStep3" />
       <glass-button text="确认" type="primary" size="md" bindtap="onNextStep3" />
@@ -164,6 +214,11 @@
         <text class="review-label">活动频率</text>
         <text class="review-value">{{frequencyLabel}}</text>
       </view>
+
+      <view class="review-item mt-md">
+        <text class="review-label">搭子性别偏好</text>
+        <text class="review-value">{{genderPreference === 'any' ? '🌐 无偏好' : genderPreference === 'same' ? '👥 优先同性' : '💑 优先异性'}}</text>
+      </view>
     </view>
 
     <view class="step-footer">
@@ -171,5 +226,7 @@
       <glass-button text="提交本周偏好" type="primary" size="lg" bindtap="onSubmit" loading="{{submitting}}" />
     </view>
   </view>
+
+</block>
 
 </view>

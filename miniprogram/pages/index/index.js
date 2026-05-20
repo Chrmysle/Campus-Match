@@ -1,41 +1,59 @@
-// pages/index/index.js — 匹配大厅（三态主页）
-const MOCK = require('../../mock/data');
+// pages/index/index.js — 匹配大厅（简化版：放榜即显示联系方式）
 const { VIBE_THEMES } = require('../../config/vibeThemes');
-const matchEngine = require('../../mock/matchEngine');
 const WEEKLY_CONFIG = require('../../config/weeklyPreferenceConfig');
 
-function buildMockCurrentUser() {
-  const quizResults = wx.getStorageSync('campusLink_quizResults') || {};
-  const userInfo = wx.getStorageSync('campusLink_user') || {};
-  const weeklyPref = wx.getStorageSync('campusLink_weeklyPref') || {};
-  const campusMap = { xueyuanlu: '学院路校区', shahe: '沙河校区', other: '其他校区' };
+const FACET_LABELS = {
+  N_Anxiety: '焦虑', N_Vulnerability: '脆弱', N_Impulsiveness: '冲动',
+  E_Gregariousness: '合群', E_Assertiveness: '主见', E_Warmth: '热情',
+  O_Ideas: '求是', O_Actions: '探索', O_Aesthetics: '审美',
+  A_Trust: '信任', A_Altruism: '利他', A_Compliance: '顺从',
+  C_Order: '条理', C_Achievement: '上进', C_SelfDiscipline: '自律'
+};
 
-  // 从 weeklyPref 中读取 vibeTypes（新流程），回退到 quizResults
-  var vibeTypes = [];
-  if (weeklyPref.vibeTypes && weeklyPref.vibeTypes.length > 0) {
-    vibeTypes = weeklyPref.vibeTypes.map(function (v) { return v.value; });
-  } else {
-    vibeTypes = quizResults.vibeTypes || (quizResults.vibeType ? [quizResults.vibeType] : ['study']);
+// 匹配解读降级方案（前端直接生成，无需等待云端 AI）
+function buildFallbackInsight(candidate) {
+  var pct = Math.round((candidate.personalitySim || 0.7) * 100);
+  var topText = '';
+  if (candidate.highlightTags && candidate.highlightTags.length > 0) {
+    topText = candidate.highlightTags.slice(0, 2).map(function (t) { return t.label || t.key; }).join('、');
+  }
+  var reason = '人格契合度 ' + pct + '%，' + (topText ? '在「' + topText + '」等方面兴趣相投。' : '算法推荐你们成为本周搭子！');
+  var personalityText = '你们的大五人格余弦相似度为 ' + pct + '%。';
+
+  var iceBreakers = [];
+  if (candidate.sharedTags) {
+    iceBreakers.push('你们都有「' + candidate.sharedTags + '」的共同点，不妨从共同兴趣聊起！');
+  }
+  if (candidate.sharedSubCategories && candidate.sharedSubCategories.length > 0) {
+    var subLabels = candidate.sharedSubCategories.map(function (s) { return s.label || s.value; });
+    iceBreakers.push('发现你们都关注「' + subLabels.slice(0, 2).join('」、「') + '」，约起来吧！');
+  }
+  if (iceBreakers.length === 0) {
+    iceBreakers.push('缘分让你们相遇，主动打个招呼开启一段新友谊吧 ✨');
+    iceBreakers.push('分享一首你最近在循环的歌，看看对方是否也喜欢 💫');
+  }
+  if (iceBreakers.length < 2) {
+    iceBreakers.push('分享一首你最近在循环的歌，看看对方是否也喜欢 💫');
   }
 
   return {
-    _id: userInfo.userId || 'mock_current_user',
-    campus: campusMap[quizResults.campus] || quizResults.campus || '学院路校区',
-    schedule: quizResults.schedule || 'dayWalker',
-    targetVibe: vibeTypes[0],
-    vibeTypes: vibeTypes,
-    gender: 1,
-    genderPreference: userInfo.genderPreference || { type: 'any', targetGenders: [] },
-    quantitativeScores: { bigFive: quizResults.bigFive || { N: 0.5, E: 0.5, O: 0.5, A: 0.5, C: 0.5 } },
-    displayTags: quizResults.tags || []
+    matchReason: reason,
+    similarities: {
+      personality: personalityText,
+      tags: candidate.sharedTags ? candidate.sharedTags.split('、') : [],
+      subCategories: [],
+      scheduleSync: candidate.scheduleSync || false,
+      campusLink: candidate.campusLink || false
+    },
+    iceBreakers: iceBreakers.slice(0, 2),
+    aiGenerated: false
   };
 }
 
 Page({
   data: {
     isVerified: false,
-
-    // 三态主页
+    hasQuizData: false,
     homepageState: 'loading',
     weeklySubmitted: false,
     weeklyPref: null,
@@ -45,38 +63,20 @@ Page({
     userSchedule: '',
     userCampus: '',
 
-    // 匹配时段
-    inMatchWindow: false,
     countdownText: '',
+    countdownLabel: '',
     nextMatchTime: '',
     currentVibe: '',
     vibeTypes: [],
     vibeThemeList: [],
     vibeTheme: null,
 
-    // 候选卡片
     candidates: [],
-    currentIndex: 0,
-    currentCard: null,
-    remaining: 0,
-    allVoted: false,
 
-    // 滑动追踪
-    touchStartX: 0,
-    touchStartY: 0,
-    swipeOffset: 0,
-    swipeRotate: 0,
-    swipeOpacity: 1,
-    swipeTransition: false,
-
-    // 模拟匹配测试
-    mockTestActive: false,
-    matchResults: [],
-    showMockTest: false,
-
-    // 默认回退值（避免 WXML 中字符串字面量）
     defaultEmoji: '🎯',
-    defaultAvatar: '👤'
+    defaultAvatar: '👤',
+
+    showDevTools: false,
   },
 
   onLoad: function () {
@@ -92,19 +92,52 @@ Page({
       wx.reLaunch({ url: '/pages/login/login' });
       return;
     }
-    // 每次显示时重新检查（从 weekly-pref 页返回时触发刷新）
     this.initHomepage();
   },
 
   // ===== 主页状态管理 =====
 
   initHomepage: function () {
-    // 优先从云端状态判断，回退到本地缓存
-    if (!this.checkCloudMatchStatus()) {
-      this.checkWeeklyPrefStatus();
-    }
-    this.checkMatchWindow();
+    var quizResults = wx.getStorageSync('campusLink_quizResults') || {};
+    var hasQuizData = !!(quizResults.bigFive);
+    this.setData({ hasQuizData: hasQuizData });
+
+    // 先尝试从云端同步匹配状态到本地缓存
+    this.syncMatchStatusFromCloud();
+
+    var matched = this.checkCloudMatchStatus();
+    this.checkWeeklyPrefStatus();
+    this.checkTimeline();
     this.loadPersonalityPreview();
+  },
+
+  // 从云端拉取最新状态并同步到本地缓存
+  syncMatchStatusFromCloud: function () {
+    var that = this;
+    var app = getApp();
+    var userId = app.globalData.userId;
+    if (!userId) return;
+
+    wx.cloud.callFunction({
+      name: 'getUserProfile',
+      data: { userId: userId },
+      success: function (res) {
+        if (res.result && res.result.success && res.result.data) {
+          var cloudData = res.result.data;
+          if (cloudData.weeklyMatchStatus) {
+            var userInfo = wx.getStorageSync('campusLink_user') || {};
+            userInfo.weeklyMatchStatus = cloudData.weeklyMatchStatus;
+            userInfo.weeklyMatchWeekLabel = cloudData.weeklyMatchWeekLabel || '';
+            wx.setStorageSync('campusLink_user', userInfo);
+            // 重新检查状态
+            that.checkCloudMatchStatus();
+          }
+        }
+      },
+      fail: function () {
+        // 静默失败，使用本地缓存
+      }
+    });
   },
 
   checkWeeklyPrefStatus: function () {
@@ -125,38 +158,46 @@ Page({
     });
   },
 
-  // 从云端登录信息读取匹配状态（跨设备/清除缓存后依然有效）
+  // 从云端登录信息读取匹配状态
   checkCloudMatchStatus: function () {
     var userInfo = wx.getStorageSync('campusLink_user') || {};
     var weekLabel = WEEKLY_CONFIG.getWeekLabel();
     var status = userInfo.weeklyMatchStatus;
     var statusWeek = userInfo.weeklyMatchWeekLabel;
 
-    // 只有同一周的状态才有效
-    if (status === 'completed' && statusWeek === weekLabel) {
-      this.setData({
-        weeklySubmitted: true,
-        homepageState: 'completed'
-      });
-      return true;
-    }
+    if (!status || statusWeek !== weekLabel) return false;
 
-    if (status === 'voting' && statusWeek === weekLabel) {
-      this.setData({ inMatchWindow: true });
+    // completed 或 voting（voting 在简化版中等同于 completed）→ 直接加载匹配结果
+    if ((status === 'completed' || status === 'voting') && statusWeek === weekLabel) {
+      this.setData({ weeklySubmitted: true });
       this.loadMatchPool();
       return true;
     }
 
-    return false; // 回退到本地缓存判断
+    if (status === 'submitted' && statusWeek === weekLabel) {
+      this.setData({ weeklySubmitted: true });
+      if (WEEKLY_CONFIG.isRevealed()) {
+        this.loadMatchPool();
+      } else if (WEEKLY_CONFIG.isProcessing()) {
+        this.setData({ homepageState: 'processing' });
+      } else {
+        this.setData({ homepageState: 'waiting' });
+      }
+      return true;
+    }
+
+    return false;
   },
 
   determineHomepageState: function () {
-    // completed 由 checkCloudMatchStatus 设置，不覆盖
-    if (this.data.homepageState === 'completed') return;
-    if (this.data.inMatchWindow || this.data.mockTestActive) {
-      this.setData({ homepageState: 'matching' });
-    } else if (this.data.weeklySubmitted) {
+    if (this.data.homepageState === 'completed' || this.data.homepageState === 'processing') return;
+
+    if (this.data.weeklySubmitted) {
       this.setData({ homepageState: 'waiting' });
+    } else if (!WEEKLY_CONFIG.isSubmissionOpen()) {
+      this.setData({ homepageState: 'closed' });
+    } else if (this.data.hasQuizData) {
+      this.setData({ homepageState: 'dashboard' });
     } else {
       this.setData({ homepageState: 'not_submitted' });
     }
@@ -185,8 +226,14 @@ Page({
   },
 
   onJoinWeeklyMatch: function () {
-    // 检查是否已完成人格问卷
     var quizResults = wx.getStorageSync('campusLink_quizResults');
+    if (!quizResults || !quizResults.bigFive) {
+      var userInfo = wx.getStorageSync('campusLink_user') || {};
+      if (userInfo.quizResults && userInfo.quizResults.bigFive) {
+        quizResults = userInfo.quizResults;
+        wx.setStorageSync('campusLink_quizResults', quizResults);
+      }
+    }
     if (!quizResults || !quizResults.bigFive) {
       wx.showModal({
         title: '提示',
@@ -201,26 +248,12 @@ Page({
     wx.navigateTo({ url: '/pages/weekly-pref/weekly-pref' });
   },
 
-  onTabMockTest: function () {
-    this.setData({ showMockTest: !this.data.showMockTest });
-  },
+  // ===== 时间线状态 =====
 
-  // ===== 匹配窗口 =====
-
-  checkMatchWindow: function () {
-    var now = new Date();
-    var day = now.getDay();
-    var minutes = now.getHours() * 60 + now.getMinutes();
-    // 周一 21:00 = day 1, minute 1260
-    var inWindow = day === 1 && minutes >= 1260;
-
-    if (inWindow) {
-      if (!this.data.inMatchWindow) {
-        this.setData({ inMatchWindow: true });
-        this.loadMatchPool();
-      }
+  checkTimeline: function () {
+    if (WEEKLY_CONFIG.isRevealed() && this.data.homepageState === 'waiting') {
+      this.loadMatchPool();
     } else {
-      this.setData({ inMatchWindow: false });
       this.updateCountdown();
     }
     this.determineHomepageState();
@@ -228,17 +261,28 @@ Page({
 
   updateCountdown: function () {
     var now = new Date();
-    var day = now.getDay();
-    var target = new Date(now);
-    if (day === 1 && now.getHours() < 21) {
-      target.setHours(21, 0, 0, 0);
+    var target;
+    var label = '';
+
+    if (this.data.homepageState === 'processing' || WEEKLY_CONFIG.isProcessing()) {
+      target = new Date(now);
+      if (now.getDay() === 1) {
+        target.setHours(21, 0, 0, 0);
+      } else {
+        target = WEEKLY_CONFIG.getNextRevealTime();
+      }
+      label = '距放榜还有';
+    } else if (!WEEKLY_CONFIG.isSubmissionOpen()) {
+      target = WEEKLY_CONFIG.getNextRevealTime();
+      label = '距下次匹配还有';
     } else {
-      target.setDate(now.getDate() + ((8 - day) % 7 || 7));
-      target.setHours(21, 0, 0, 0);
+      target = WEEKLY_CONFIG.getNextSubmissionDeadline();
+      label = '距提交截止还有';
     }
+
     var diff = target - now;
     if (diff <= 0) {
-      this.setData({ countdownText: '匹配已开始！' });
+      this.setData({ countdownText: '即将开始！', countdownLabel: '' });
       return;
     }
     var d = Math.floor(diff / 86400000);
@@ -247,13 +291,54 @@ Page({
     var text = '';
     if (d > 0) text += d + '天 ';
     text += h + '小时 ' + m + '分钟';
-    this.setData({ countdownText: text, nextMatchTime: target.toLocaleString('zh-CN') });
+    this.setData({ countdownText: text, countdownLabel: label, nextMatchTime: target.toLocaleString('zh-CN') });
     if (this._countdownTimer) clearTimeout(this._countdownTimer);
     this._countdownTimer = setTimeout(this.updateCountdown.bind(this), 60000);
   },
 
+  // ===== 匹配结果加载 & 联系方式展示 =====
+
   loadMatchPool: function () {
-    var pool = MOCK.getCurrentUserMatchPool();
+    var app = getApp();
+    var userId = app.globalData.userId;
+    var weekLabel = WEEKLY_CONFIG.getWeekLabel();
+    var that = this;
+
+    if (!userId || !weekLabel) {
+      this.setData({ weeklySubmitted: true, homepageState: 'waiting' });
+      return;
+    }
+
+    wx.cloud.callFunction({
+      name: 'getMyMatchPool',
+      data: { userId: userId, weekLabel: weekLabel },
+      success: function (res) {
+        if (res.result && res.result.success && res.result.pool && res.result.pool.revealed) {
+          that._displayMatches(res.result.pool);
+        } else if (res.result && res.result.success && res.result.pool) {
+          // match_pool 存在但未揭晓
+          if (WEEKLY_CONFIG.isProcessing()) {
+            that.setData({ weeklySubmitted: true, homepageState: 'processing' });
+          } else {
+            that.setData({ weeklySubmitted: true, homepageState: 'waiting' });
+          }
+        } else {
+          // 没有匹配池
+          that.setData({ weeklySubmitted: true, homepageState: 'waiting' });
+        }
+      },
+      fail: function (err) {
+        console.error('[index] loadMatchPool error:', err);
+        that.setData({ weeklySubmitted: true, homepageState: 'waiting' });
+      }
+    });
+  },
+
+  _displayMatches: function (pool) {
+    var that = this;
+    var app = getApp();
+    var userId = app.globalData.userId;
+    var weekLabel = WEEKLY_CONFIG.getWeekLabel();
     var weeklyPref = wx.getStorageSync('campusLink_weeklyPref') || {};
     var vibeTypes = [];
     if (weeklyPref.vibeTypes && weeklyPref.vibeTypes.length > 0) {
@@ -267,256 +352,159 @@ Page({
       var t = VIBE_THEMES[vt];
       return { key: vt, emoji: (t && t.emoji) || '🎯', name: (t && t.name) || vt, color: (t && t.color) || '#C4A484' };
     });
-    this.setData({
+
+    var candidates = pool.candidates || [];
+
+    // 为每个候选人生成本地降级匹配解读（秒出，不依赖云端）
+    candidates.forEach(function (c) {
+      if (!c.matchInsight) {
+        c.matchInsight = buildFallbackInsight(c);
+      }
+    });
+
+    that.setData({
       currentVibe: vibeTypes[0],
       vibeTypes: vibeTypes,
       vibeThemeList: vibeThemeList,
       vibeTheme: vibeTheme,
-      candidates: pool.candidates || [],
-      remaining: (pool.candidates || []).length,
-      currentCard: (pool.candidates || [])[0] || null,
-      currentIndex: 0,
-      allVoted: false
+      candidates: candidates,
+      homepageState: 'completed'
     });
-  },
 
-  // ===== 触摸滑动 =====
-
-  onTouchStart: function (e) {
-    this.setData({
-      touchStartX: e.touches[0].clientX,
-      touchStartY: e.touches[0].clientY,
-      swipeTransition: false
-    });
-  },
-
-  onTouchMove: function (e) {
-    var touchStartX = this.data.touchStartX;
-    if (!touchStartX) return;
-    var deltaX = e.touches[0].clientX - touchStartX;
-    this.setData({
-      swipeOffset: deltaX,
-      swipeRotate: deltaX / 12,
-      swipeOpacity: Math.max(0.4, 1 - Math.abs(deltaX) / 500)
-    });
-  },
-
-  onTouchEnd: function (e) {
-    var touchStartX = this.data.touchStartX;
-    var touchStartY = this.data.touchStartY;
-    var swipeOffset = this.data.swipeOffset;
-    if (!touchStartX) return;
-
-    var deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
-    var absX = Math.abs(swipeOffset);
-
-    if (deltaY > absX * 1.5 && absX < 50) {
-      this.snapBack();
-      return;
-    }
-
-    if (absX >= 120) {
-      var action = swipeOffset < 0 ? 'PASS' : 'HEART';
-      this.exitWithTransition(action, function () {
-        this.processVote(action);
-        this.resetCardState();
-      }.bind(this));
-    } else if (absX < 10) {
-      this.exitWithTransition('MEET', function () {
-        this.processVote('MEET');
-        this.resetCardState();
-      }.bind(this));
-    } else {
-      this.snapBack();
-    }
-  },
-
-  exitWithTransition: function (actionType, callback) {
-    var isPass = actionType === 'PASS';
-    this.setData({
-      swipeTransition: true,
-      swipeOffset: isPass ? -500 : 500,
-      swipeRotate: isPass ? -20 : 20,
-      swipeOpacity: 0
-    });
-    setTimeout(callback, 300);
-  },
-
-  snapBack: function () {
-    this.setData({
-      swipeTransition: true,
-      touchStartX: 0,
-      touchStartY: 0,
-      swipeOffset: 0,
-      swipeRotate: 0,
-      swipeOpacity: 1
-    });
-    setTimeout(function () { this.setData({ swipeTransition: false }); }.bind(this), 300);
-  },
-
-  resetCardState: function () {
-    this.setData({
-      touchStartX: 0,
-      touchStartY: 0,
-      swipeOffset: 0,
-      swipeRotate: 0,
-      swipeOpacity: 1,
-      swipeTransition: false
-    });
-  },
-
-  // ===== 投票逻辑 =====
-
-  processVote: function (actionType) {
-    var currentCard = this.data.currentCard;
-    var currentIndex = this.data.currentIndex;
-    var candidates = this.data.candidates;
-    if (!currentCard) return;
-
-    var updatedCandidates = candidates.slice();
-    updatedCandidates[currentIndex] = Object.assign({}, currentCard, { voted: actionType });
-    var remaining = updatedCandidates.filter(function (c) { return !c.voted; }).length;
-    this.setData({ candidates: updatedCandidates, remaining: remaining });
-
-    if (remaining === 0) {
-      this.setData({ currentCard: null });
-      if (this.data.mockTestActive) {
-        this.checkMockResults();
-      } else {
-        this.setData({ allVoted: true });
-      }
-      return;
-    }
-    var nextIdx = -1;
-    for (var i = 0; i < updatedCandidates.length; i++) {
-      if (!updatedCandidates[i].voted) { nextIdx = i; break; }
-    }
-    this.setData({ currentIndex: nextIdx, currentCard: updatedCandidates[nextIdx] });
-  },
-
-  onVote: function (e) {
-    var actionType = e.currentTarget.dataset.action;
-    this.exitWithTransition(actionType, function () {
-      this.processVote(actionType);
-      this.resetCardState();
-    }.bind(this));
-  },
-
-  // ===== 模拟匹配测试 =====
-
-  onMockMatchTest: function () {
-    var quizResults = wx.getStorageSync('campusLink_quizResults');
-    var weeklyPref = wx.getStorageSync('campusLink_weeklyPref') || {};
-    if (!quizResults || !quizResults.bigFive) {
-      wx.showModal({
-        title: '提示',
-        content: '请先完成人格问卷，才能进行匹配测试',
-        confirmText: '去答题',
+    // 异步拉取每个候选人的联系方式
+    candidates.forEach(function (c) {
+      wx.cloud.callFunction({
+        name: 'getUserProfile',
+        data: { userId: c.candidateId },
         success: function (res) {
-          if (res.confirm) wx.navigateTo({ url: '/pages/quiz/quiz' });
+          if (res.result && res.result.success && res.result.data) {
+            var contact = res.result.data.contact || '';
+            // 更新对应候选人的联系方式
+            var list = that.data.candidates.slice();
+            for (var i = 0; i < list.length; i++) {
+              if (list[i].candidateId === c.candidateId) {
+                list[i].contact = contact;
+                that.setData({ candidates: list });
+                break;
+              }
+            }
+          }
         }
       });
-      return;
-    }
-
-    var currentUser = buildMockCurrentUser();
-    var candidates = matchEngine.runMatch(currentUser, matchEngine.MOCK_USERS, weeklyPref, MOCK.MOCK_WEEKLY_PREFS);
-
-    if (!candidates || candidates.length === 0) {
-      wx.showToast({ title: '未找到匹配的搭子', icon: 'none' });
-      return;
-    }
-
-    var vibeTypes = currentUser.vibeTypes || ['study'];
-    var vibeTheme = VIBE_THEMES[vibeTypes[0]] || null;
-    var vibeThemeList = vibeTypes.map(function (vt) {
-      var t = VIBE_THEMES[vt];
-      return { key: vt, emoji: (t && t.emoji) || '🎯', name: (t && t.name) || vt, color: (t && t.color) || '#C4A484' };
     });
 
-    this.setData({
-      mockTestActive: true,
-      homepageState: 'matching',
-      candidates: candidates,
-      vibeTypes: vibeTypes,
-      vibeThemeList: vibeThemeList,
-      vibeTheme: vibeTheme,
-      currentCard: candidates[0],
-      currentIndex: 0,
-      remaining: candidates.length,
-      allVoted: false,
-      matchResults: [],
-      showMockTest: false
+    // 懒加载 AI 增强版匹配解读（可选，超时不影响显示）
+    candidates.forEach(function (c) {
+      if (c.matchInsight && c.matchInsight.aiGenerated) return;
+      wx.cloud.callFunction({
+        name: 'generateMatchInsights',
+        data: { userId: userId, candidateId: c.candidateId, weekLabel: weekLabel },
+        config: { timeout: 15000 },
+        success: function (res) {
+          if (res.result && res.result.success && res.result.insight) {
+            var list = that.data.candidates.slice();
+            for (var i = 0; i < list.length; i++) {
+              if (list[i].candidateId === c.candidateId) {
+                list[i].matchInsight = res.result.insight;
+                that.setData({ candidates: list });
+                break;
+              }
+            }
+          }
+        },
+        fail: function (err) {
+          console.warn('[index] generateMatchInsights fail:', err);
+        }
+      });
     });
   },
 
-  checkMockResults: function () {
-    var candidates = this.data.candidates;
-    var results = candidates.map(function (c) {
-      var theirVote = MOCK.simulateOtherVote(c.score);
-      var mutual = matchEngine.checkBidirectionalMatch(c.voted, theirVote);
-      return {
-        candidateId: c.candidateId,
-        name: c.name,
-        avatar: c.avatar,
-        score: c.score,
-        myVote: c.voted,
-        theirVote: theirVote,
-        mutual: mutual,
-        status: mutual ? 'matched' : (c.voted === 'PASS' ? 'passed' : 'rejected')
-      };
-    });
-    this.setData({ matchResults: results, allVoted: true });
-    // 投票完成，持久化到云端
-    this.completeWeeklyVoting();
-  },
+  // ===== 开发工具 =====
 
-  // 保存"本周匹配已完成"状态到云端（跨设备同步）
-  completeWeeklyVoting: function () {
-    var app = getApp();
-    var userId = app.globalData.userId;
-    var weekLabel = WEEKLY_CONFIG.getWeekLabel();
-    if (!userId || !weekLabel) return;
-
-    wx.cloud.callFunction({
-      name: 'completeVoting',
-      data: { userId: userId, weekLabel: weekLabel },
-      success: function (res) {
-        console.log('[index] completeVoting success:', res);
-        // 更新本地用户信息，确保下次启动时读到 completed 状态
-        var userInfo = wx.getStorageSync('campusLink_user') || {};
-        userInfo.weeklyMatchStatus = 'completed';
-        userInfo.weeklyMatchWeekLabel = weekLabel;
-        wx.setStorageSync('campusLink_user', userInfo);
-      },
-      fail: function (err) {
-        console.error('[index] completeVoting failed:', err);
-        // 不阻塞用户体验，本地状态会在下次登录时从云端同步
+  onCopyContact: function (e) {
+    var contact = e.currentTarget.dataset.contact;
+    if (!contact) return;
+    wx.setClipboardData({
+      data: contact,
+      success: function () {
+        wx.showToast({ title: '已复制微信号', icon: 'success' });
       }
     });
   },
 
-  resetMockTest: function () {
-    this.setData({
-      mockTestActive: false,
-      matchResults: [],
-      candidates: [],
-      currentCard: null,
-      currentIndex: 0,
-      remaining: 0,
-      allVoted: false,
-      vibeTypes: [],
-      vibeThemeList: [],
-      vibeTheme: null,
-      swipeOffset: 0,
-      swipeRotate: 0,
-      swipeOpacity: 1
+  onTriggerMatchEngine: function () {
+    var that = this;
+    wx.showModal({
+      title: '触发匹配引擎',
+      content: '匹配将在后台异步执行，请确认已到截止时间（18:00）',
+      confirmText: '确认触发',
+      success: function (modalRes) {
+        if (!modalRes.confirm) return;
+        wx.showLoading({ title: '已提交，后台运行中...' });
+        wx.cloud.callFunction({
+          name: 'weeklyMatchEngine',
+          data: {},
+          success: function () {
+            wx.hideLoading();
+            wx.showToast({ title: '匹配引擎已启动' });
+            that.initHomepage();
+          },
+          fail: function (err) {
+            wx.hideLoading();
+            // 超时是预期的——引擎在后台继续跑
+            if (err.errCode === -504003 || err.errMsg.indexOf('timeout') > -1) {
+              wx.showToast({ title: '匹配已触发，正在后台计算' });
+              that.initHomepage();
+            } else {
+              wx.showToast({ title: '触发失败', icon: 'none' });
+            }
+          }
+        });
+      }
     });
-    this.initHomepage();
   },
 
-  onNavigateToChat: function (e) {
-    var partnerId = e.currentTarget.dataset.partnerId;
-    wx.navigateTo({ url: '/pages/chat/chat?partnerId=' + partnerId });
+  onTriggerReveal: function () {
+    var that = this;
+    wx.showLoading({ title: '触发放榜...' });
+    wx.cloud.callFunction({
+      name: 'revealMatch',
+      data: {},
+      success: function (res) {
+        wx.hideLoading();
+        var result = res.result || {};
+        if (result.success) {
+          var weekLabel = WEEKLY_CONFIG.getWeekLabel();
+          var userInfo = wx.getStorageSync('campusLink_user') || {};
+          userInfo.weeklyMatchStatus = 'completed';
+          userInfo.weeklyMatchWeekLabel = weekLabel;
+          wx.setStorageSync('campusLink_user', userInfo);
+
+          wx.showModal({
+            title: '放榜完成',
+            content: '已揭晓 ' + (result.poolsRevealed || 0) + ' 个匹配池',
+            confirmText: '好的'
+          });
+          that.initHomepage();
+        } else {
+          wx.showToast({ title: result.error || '放榜失败', icon: 'none' });
+        }
+      },
+      fail: function (err) {
+        wx.hideLoading();
+        console.error('[index] revealMatch error:', err);
+        // 超时是预期的——引擎在后台继续跑
+        if (err.errCode === -504003 || (err.errMsg && err.errMsg.indexOf('timeout') > -1)) {
+          wx.showToast({ title: '放榜已触发，正在后台执行' });
+          that.initHomepage();
+        } else {
+          wx.showToast({ title: '网络错误', icon: 'none' });
+        }
+      }
+    });
+  },
+
+  onToggleDevTools: function () {
+    this.setData({ showDevTools: !this.data.showDevTools });
   }
 });

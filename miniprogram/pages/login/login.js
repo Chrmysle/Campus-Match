@@ -1,4 +1,6 @@
 // pages/login/login.js — 校园邮箱登录 / 注册
+const { COLLEGE_LIST, GRADE_OPTIONS } = require('../../config/collegeList');
+
 Page({
   data: {
     mode: 'login',        // 'login' | 'register'
@@ -10,7 +12,16 @@ Page({
     countdown: 0,
     agreedToTerms: false,
     submitting: false,
-    _latestCode: ''
+    gender: 0,            // 0=不透露, 1=男, 2=女
+    _latestCode: '',
+
+    // 年级 & 学院
+    gradeList: GRADE_OPTIONS,
+    collegeList: COLLEGE_LIST.getFlatList(),
+    gradeIndex: -1,
+    collegeIndex: -1,
+    gradeLabel: '请选择年级',
+    collegeLabel: '请选择学院'
   },
 
   onLoad: function () {
@@ -41,6 +52,24 @@ Page({
   },
   onAgreementChange: function (e) {
     this.setData({ agreedToTerms: e.detail.value.length > 0 });
+  },
+
+  onGenderSelect: function (e) {
+    var value = parseInt(e.currentTarget.dataset.value);
+    this.setData({ gender: value });
+  },
+
+  // ===== 年级 & 学院选择 =====
+  onGradeChange: function (e) {
+    var idx = e.detail.value;
+    var option = GRADE_OPTIONS[idx];
+    this.setData({ gradeIndex: idx, gradeLabel: option.label });
+  },
+
+  onCollegeChange: function (e) {
+    var idx = e.detail.value;
+    var list = COLLEGE_LIST.getFlatList();
+    this.setData({ collegeIndex: idx, collegeLabel: list[idx] });
   },
 
   // ===== 发送验证码 =====
@@ -131,7 +160,7 @@ Page({
 
   // ===== 注册 =====
   onRegister: function () {
-    const { email, code, password, confirmPwd, agreedToTerms } = this.data;
+    const { email, code, password, confirmPwd, agreedToTerms, gender, gradeIndex, collegeIndex } = this.data;
 
     if (!agreedToTerms) {
       wx.showToast({ title: '请先同意用户协议', icon: 'none' });
@@ -150,11 +179,14 @@ Page({
       return;
     }
 
+    var grade = gradeIndex >= 0 ? GRADE_OPTIONS[gradeIndex].value : 0;
+    var college = collegeIndex >= 0 ? COLLEGE_LIST.getFlatList()[collegeIndex] : '';
+
     this.setData({ submitting: true });
 
     wx.cloud.callFunction({
       name: 'registerUser',
-      data: { email, code, password },
+      data: { email, code, password, gender: gender, grade: grade, college: college },
       success: res => {
         const result = res.result || {};
         if (result.success) {

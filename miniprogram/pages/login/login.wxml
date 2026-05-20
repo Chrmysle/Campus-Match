@@ -118,6 +118,55 @@
         />
       </view>
 
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">性别</text>
+        <view class="gender-selector">
+          <view
+            class="gender-option {{gender === 1 ? 'gender-active' : ''}}"
+            data-value="1"
+            bindtap="onGenderSelect"
+          >
+            <text>👦 男</text>
+          </view>
+          <view
+            class="gender-option {{gender === 2 ? 'gender-active' : ''}}"
+            data-value="2"
+            bindtap="onGenderSelect"
+          >
+            <text>👧 女</text>
+          </view>
+          <view
+            class="gender-option {{gender === 0 ? 'gender-active' : ''}}"
+            data-value="0"
+            bindtap="onGenderSelect"
+          >
+            <text>🔒 不透露</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 年级 -->
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">年级</text>
+        <picker mode="selector" range="{{gradeList}}" range-key="label" bindchange="onGradeChange">
+          <view class="form-input picker-input">
+            <text class="{{gradeIndex === -1 ? 'text-soft' : ''}}">{{gradeLabel}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <!-- 学院 -->
+      <view class="form-group mt-md">
+        <text class="form-label text-sm text-medium">学院</text>
+        <picker mode="selector" range="{{collegeList}}" bindchange="onCollegeChange">
+          <view class="form-input picker-input">
+            <text class="{{collegeIndex === -1 ? 'text-soft' : ''}}">{{collegeLabel}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
       <!-- 协议 -->
       <view class="form-group mt-md agreement-row">
         <checkbox-group bindchange="onAgreementChange">

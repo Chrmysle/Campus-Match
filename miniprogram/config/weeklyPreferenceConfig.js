@@ -89,7 +89,9 @@ const WEEKLY_PREFERENCE_CONFIG = {
     }
   ],
 
-  // 获取本周标签
+  // ===== 本周标签 =====
+
+  // 获取本周标签（如 2026W21）
   getWeekLabel: function () {
     const now = new Date();
     const year = now.getFullYear();
@@ -99,13 +101,59 @@ const WEEKLY_PREFERENCE_CONFIG = {
     return year + 'W' + week;
   },
 
-  // 判断当前是否在匹配窗口内（周一 21:00 起）
-  isInMatchWindow: function () {
+  // ===== 时间线判断 =====
+
+  // 判断是否在提交窗口内（周一 00:00-18:00 之前都算可提交）
+  isSubmissionOpen: function () {
     const now = new Date();
     const day = now.getDay();
     const minutes = now.getHours() * 60 + now.getMinutes();
-    // 周一 21:00 = day 1, minute 1260
+    // 周一 18:00 = day 1, minute 1080，在此之前可提交
+    return !(day === 1 && minutes >= 1080);
+  },
+
+  // 判断是否在处理窗口内（周一 18:00-21:00）
+  isProcessing: function () {
+    const now = new Date();
+    const day = now.getDay();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    return day === 1 && minutes >= 1080 && minutes < 1260;
+  },
+
+  // 判断是否在放榜窗口内（周一 21:00 起）
+  isRevealed: function () {
+    const now = new Date();
+    const day = now.getDay();
+    const minutes = now.getHours() * 60 + now.getMinutes();
     return day === 1 && minutes >= 1260;
+  },
+
+  // 获取下一个周一 21:00（放榜时间）
+  getNextRevealTime: function () {
+    const now = new Date();
+    const target = new Date(now);
+    const day = now.getDay();
+    if (day === 1 && now.getHours() < 21) {
+      target.setHours(21, 0, 0, 0);
+    } else {
+      target.setDate(now.getDate() + ((8 - day) % 7 || 7));
+      target.setHours(21, 0, 0, 0);
+    }
+    return target;
+  },
+
+  // 获取下一个周一 18:00（提交截止时间）
+  getNextSubmissionDeadline: function () {
+    const now = new Date();
+    const target = new Date(now);
+    const day = now.getDay();
+    if (day === 1 && now.getHours() < 18) {
+      target.setHours(18, 0, 0, 0);
+    } else {
+      target.setDate(now.getDate() + ((8 - day) % 7 || 7));
+      target.setHours(18, 0, 0, 0);
+    }
+    return target;
   }
 };
 

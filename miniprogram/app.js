@@ -36,11 +36,18 @@ App({
 
     // 合并云端数据与本地缓存，避免云端 null 覆盖本地已有值
     var cached = wx.getStorageSync('campusLink_user') || {};
-    wx.setStorageSync('campusLink_user', {
-      ...cached,
-      ...userInfo,
-      isVerified: true
+    // 保留本地已有但云端为 null 的字段（如 weeklyMatchStatus）
+    var merged = {};
+    Object.keys(cached).forEach(function (k) {
+      merged[k] = cached[k];
     });
+    Object.keys(userInfo).forEach(function (k) {
+      if (userInfo[k] !== null && userInfo[k] !== undefined) {
+        merged[k] = userInfo[k];
+      }
+    });
+    merged.isVerified = true;
+    wx.setStorageSync('campusLink_user', merged);
   },
 
   clearUser: function () {

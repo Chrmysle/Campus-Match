@@ -23,18 +23,18 @@ exports.main = async (event, context) => {
       return { success: false, error: '未找到匹配关系或关系已断裂' };
     }
 
-    // 读取对方联系方式（生产环境应在此解密）
+    // 读取对方联系方式
     const { data: partner } = await db.collection('users').doc(partnerId).get();
-    if (!partner || partner.length === 0) {
+    if (!partner || !partner._id) {
       return { success: false, error: '用户不存在' };
     }
 
-    const contact = decryptContact(partner.encryptedContact);
+    var contact = partner.contact || (partner.quizResults && partner.quizResults.contact) || '';
     console.log('[unlockContact] 联系方式已解锁');
 
     return {
       success: true,
-      contact: contact || '联系方式暂未设置',
+      contact: contact || '对方暂未设置联系方式',
       partnerName: partner.name || '校园搭子'
     };
   } catch (err) {
@@ -42,10 +42,3 @@ exports.main = async (event, context) => {
     return { success: false, error: err.message };
   }
 };
-
-// 解密联系方式（生产环境使用微信加密或 AES）
-function decryptContact(encrypted) {
-  if (!encrypted) return null;
-  // 占位：生产环境应使用 crypto 模块解密
-  return encrypted;
-}

@@ -1,4 +1,4 @@
-<!-- pages/index/index.wxml — 匹配大厅（三态主页） -->
+<!-- pages/index/index.wxml — 匹配大厅 -->
 <nav-bar title="CampusLink" />
 
 <view class="page-container">
@@ -11,31 +11,37 @@
   <block wx:else>
 
     <!-- ================================================================== -->
-    <!-- 状态 A：未参与本周匹配 → 大按钮引导 -->
+    <!-- 状态 A：未参与本周匹配 → 大按钮引导（提交窗口内，无问卷数据） -->
     <!-- ================================================================== -->
     <view wx:if="{{homepageState === 'not_submitted'}}" class="not-submitted-page">
-      <!-- 英雄区 -->
       <view class="hero-section flex-col flex-center">
         <text class="hero-emoji">🎯</text>
         <text class="hero-title font-title text-xxl">找到你的校园搭子</text>
-        <text class="hero-subtitle text-sm text-soft">每周一 21:00 匹配开启 · 双向选择 · 解锁联系方式</text>
+        <text class="hero-subtitle text-sm text-soft">每周一 21:00 匹配开启 · 直接获取联系方式</text>
 
-        <!-- 参与匹配大按钮 -->
         <view class="hero-join-btn" bindtap="onJoinWeeklyMatch">
           <text class="hero-join-emoji">🎯</text>
           <text class="hero-join-text">参与本周匹配</text>
         </view>
 
-        <!-- 倒计时（距离开启还有） -->
         <view class="countdown-box glass-card mt-md">
-          <text class="text-xs text-muted">距匹配盲选开启还有</text>
+          <text class="text-xs text-muted">{{countdownLabel || '距提交截止还有'}}</text>
           <text class="text-xxl text-bold" style="color:#C4A484;">{{countdownText}}</text>
         </view>
-        <text class="text-xs text-muted mt-sm">下一个匹配日：{{nextMatchTime}}</text>
+        <text class="text-xs text-muted mt-sm">截止时间：本周一 18:00</text>
+      </view>
+    </view>
+
+    <!-- ================================================================== -->
+    <!-- 状态 A-1：老用户主页（有问卷数据但未提交本周偏好） -->
+    <!-- ================================================================== -->
+    <view wx:elif="{{homepageState === 'dashboard'}}" class="dashboard-page">
+      <view class="flex-col flex-center" style="padding:32rpx 0 24rpx;text-align:center;">
+        <text class="hero-emoji">🎯</text>
+        <text class="text-xl font-title mt-sm">在这里，找到和你灵魂契合的校园搭子</text>
       </view>
 
-      <!-- 我的画像预览 -->
-      <view wx:if="{{displayTags.length > 0}}" class="personality-preview glass-card mt-lg">
+      <view wx:if="{{displayTags.length > 0}}" class="personality-preview glass-card mt-md">
         <view class="flex-row gap-sm" style="align-items:center;">
           <text class="text-md text-bold">🧑 我的画像</text>
         </view>
@@ -48,14 +54,76 @@
         </view>
       </view>
 
-      <!-- 开发者测试区（长按标题触发） -->
-      <view class="mock-test-section mt-lg">
-        <view class="mock-test-divider" bindlongpress="onTabMockTest">
-          <text class="text-xs text-muted">— CampusLink v1.0 —</text>
+      <view class="flex-col flex-center mt-lg">
+        <view class="hero-join-btn" bindtap="onJoinWeeklyMatch">
+          <text class="hero-join-emoji">🎯</text>
+          <text class="hero-join-text">参与本周匹配</text>
         </view>
-        <view wx:if="{{showMockTest}}">
-          <glass-button text="🎯 模拟周一放榜（开发测试）" type="ghost" size="md" bindtap="onMockMatchTest" />
-          <text class="text-xs text-soft mock-test-hint">点击后用匹配引擎生成本周 3 位推荐搭子</text>
+      </view>
+      <view class="countdown-box glass-card mt-md">
+        <text class="text-xs text-muted">{{countdownLabel || '距提交截止还有'}}</text>
+        <text class="text-xxl text-bold" style="color:#C4A484;">{{countdownText}}</text>
+      </view>
+      <text class="text-xs text-muted mt-sm" style="text-align:center;">截止时间：本周一 18:00</text>
+    </view>
+
+    <!-- ================================================================== -->
+    <!-- 状态 A-2：本周匹配已暂停（超过周一 18:00 且未提交） -->
+    <!-- ================================================================== -->
+    <view wx:elif="{{homepageState === 'closed'}}" class="closed-page">
+      <view class="closed-banner glass-card">
+        <view class="flex-row gap-sm" style="align-items:center;">
+          <text class="banner-icon">⏸️</text>
+          <text class="text-lg text-bold">本周匹配已暂停</text>
+        </view>
+        <text class="text-sm text-soft mt-sm">本周的偏好提交已于周一 18:00 截止，请参与下周匹配</text>
+      </view>
+
+      <view class="countdown-box glass-card mt-lg">
+        <text class="text-xs text-muted">{{countdownLabel || '距下次匹配还有'}}</text>
+        <text class="text-xxl text-bold" style="color:#C4A484;">{{countdownText}}</text>
+      </view>
+      <text class="text-xs text-muted mt-sm" style="text-align:center;">下次匹配时间：下周一 21:00</text>
+
+      <view wx:if="{{displayTags.length > 0}}" class="personality-preview glass-card mt-md">
+        <text class="text-md text-bold">🧑 我的画像</text>
+        <view class="preview-tags mt-sm">
+          <vibe-badge wx:for="{{displayTags}}" wx:key="key" emoji="{{item.emoji}}" text="{{item.label}}" size="sm" />
+        </view>
+      </view>
+    </view>
+
+    <!-- ================================================================== -->
+    <!-- 状态 A-3：匹配处理中（周一 18:00-21:00 已提交用户） -->
+    <!-- ================================================================== -->
+    <view wx:elif="{{homepageState === 'processing'}}" class="processing-page">
+      <view class="processing-banner glass-card">
+        <view class="flex-col flex-center" style="text-align:center;">
+          <text class="processing-emoji">⚙️</text>
+          <text class="text-xl text-bold mt-sm">正在匹配计算中...</text>
+          <text class="text-sm text-soft mt-sm">算法正在根据你的偏好和问卷数据匹配最合适的搭子</text>
+        </view>
+        <view class="processing-bar mt-lg">
+          <view class="processing-fill"></view>
+        </view>
+      </view>
+
+      <view class="countdown-box glass-card mt-lg">
+        <text class="text-xs text-muted">{{countdownLabel || '距放榜还有'}}</text>
+        <text class="text-xxl text-bold" style="color:#C4A484;">{{countdownText}}</text>
+      </view>
+      <text class="text-xs text-muted mt-sm" style="text-align:center;">放榜时间：{{nextMatchTime}}</text>
+
+      <view wx:if="{{weeklyPref}}" class="weekly-summary glass-card mt-md">
+        <text class="text-md text-bold">📋 本周偏好</text>
+        <view class="flex-row gap-sm mt-sm">
+          <vibe-badge
+            wx:for="{{weeklyVibeTypes}}"
+            wx:key="value"
+            emoji="{{item.emoji}}"
+            text="{{item.label}}"
+            size="sm"
+          />
         </view>
       </view>
     </view>
@@ -64,21 +132,16 @@
     <!-- 状态 B：已参与本周匹配 → 等待放榜 -->
     <!-- ================================================================== -->
     <view wx:elif="{{homepageState === 'waiting'}}" class="waiting-page">
-      <!-- 已参与横幅 -->
       <view class="submitted-banner glass-card">
         <view class="flex-row gap-sm" style="align-items:center;">
           <text class="banner-check">✅</text>
           <text class="text-lg text-bold">已参与本周匹配</text>
         </view>
-        <text class="text-sm text-soft mt-sm">等待周一 21:00 放榜结果，届时将揭晓你的推荐搭子</text>
+        <text class="text-sm text-soft mt-sm">等待周一 21:00 放榜结果，届时将揭晓你的推荐搭子及联系方式</text>
       </view>
 
-      <!-- 本周偏好摘要 -->
       <view class="weekly-summary glass-card mt-md">
         <text class="text-md text-bold">📋 本周偏好</text>
-        <view class="flex-row gap-sm mt-sm">
-          <text class="text-xs text-soft">搭子类型</text>
-        </view>
         <view class="flex-row gap-sm mt-sm">
           <vibe-badge
             wx:for="{{weeklyVibeTypes}}"
@@ -97,7 +160,6 @@
         </view>
       </view>
 
-      <!-- 人格画像预览 -->
       <view wx:if="{{displayTags.length > 0}}" class="personality-preview glass-card mt-md">
         <text class="text-md text-bold">🧑 我的画像</text>
         <view class="preview-tags mt-sm">
@@ -105,38 +167,101 @@
         </view>
       </view>
 
-      <!-- 倒计时 -->
       <view class="countdown-box glass-card mt-lg">
-        <text class="text-xs text-muted">距放榜还有</text>
+        <text class="text-xs text-muted">{{countdownLabel || '距放榜还有'}}</text>
         <text class="text-xxl text-bold" style="color:#C4A484;">{{countdownText}}</text>
       </view>
       <text class="text-xs text-muted mt-sm" style="text-align:center;">放榜时间：{{nextMatchTime}}</text>
-
-      <!-- 开发者测试区（长按标题触发） -->
-      <view class="mock-test-section mt-lg">
-        <view class="mock-test-divider" bindlongpress="onTabMockTest">
-          <text class="text-xs text-muted">— CampusLink v1.0 —</text>
-        </view>
-        <view wx:if="{{showMockTest}}">
-          <glass-button text="🎯 模拟周一放榜（开发测试）" type="ghost" size="md" bindtap="onMockMatchTest" />
-        </view>
-      </view>
     </view>
 
     <!-- ================================================================== -->
-    <!-- 状态 B-2：本周匹配已完成（从云端同步的状态） -->
+    <!-- 状态 D：本周匹配完成 → 展示匹配结果 & 联系方式 -->
     <!-- ================================================================== -->
     <view wx:elif="{{homepageState === 'completed'}}" class="completed-page">
-      <!-- 已完成横幅 -->
       <view class="submitted-banner glass-card">
         <view class="flex-row gap-sm" style="align-items:center;">
           <text class="banner-check">🎉</text>
-          <text class="text-lg text-bold">本周匹配已完成</text>
+          <text class="text-lg text-bold">本周匹配结果</text>
         </view>
-        <text class="text-sm text-soft mt-sm">你已经完成本周的所有匹配，下周一 21:00 开启新的匹配周期</text>
+        <text class="text-sm text-soft mt-sm">以下是根据你的偏好推荐的同学，快去联系他们吧</text>
       </view>
 
-      <!-- 人格画像预览 -->
+      <!-- 匹配结果列表 -->
+      <view class="match-list mt-lg">
+        <view wx:if="{{candidates.length === 0}}" class="flex-center" style="padding:48rpx;">
+          <text class="text-md text-soft">暂无匹配结果</text>
+        </view>
+        <view
+          wx:for="{{candidates}}"
+          wx:key="candidateId"
+          class="match-result-card glass-card mt-sm"
+        >
+          <!-- 头部：头像 + 名字 + 分数 -->
+          <view class="flex-row gap-md" style="align-items:center;">
+            <view class="match-avatar">
+              <text class="avatar-emoji">{{item.avatar || defaultAvatar}}</text>
+            </view>
+            <view class="flex-col" style="flex:1;">
+              <text class="text-lg text-bold">{{item.name}}</text>
+              <view class="flex-row gap-sm mt-xs">
+                <text class="text-xs text-soft">{{item.campus || ''}}</text>
+                <text class="text-xs text-soft">{{item.scheduleLabel || ''}}</text>
+              </view>
+            </view>
+            <text class="match-score" style="color:{{vibeTheme.colorDark || '#C4A484'}};">{{item.score}}分</text>
+          </view>
+
+          <!-- 标签 -->
+          <view wx:if="{{item.highlightTags && item.highlightTags.length > 0}}" class="flex-row gap-sm mt-sm">
+            <vibe-badge
+              wx:for="{{item.highlightTags}}"
+              wx:key="key"
+              emoji="{{item.emoji}}"
+              text="{{item.label}}"
+              size="sm"
+            />
+          </view>
+
+          <!-- AI 摘要 -->
+          <view wx:if="{{item.aiSummary}}" class="match-summary mt-sm">
+            <text class="text-xs text-soft">{{item.aiSummary}}</text>
+          </view>
+
+          <!-- 匹配解读 + 破冰锦囊（统一块） -->
+          <view wx:if="{{item.matchInsight}}" class="match-insight-block mt-md">
+            <!-- 为什么匹配 -->
+            <view class="insight-section">
+              <text class="insight-title">🎯 为什么匹配</text>
+              <text class="insight-text">{{item.matchInsight.matchReason}}</text>
+            </view>
+
+            <!-- 相似点 -->
+            <view wx:if="{{item.matchInsight.similarities}}" class="insight-section mt-sm">
+              <text class="insight-title">🤝 你们的相似点</text>
+              <text class="insight-text">{{item.matchInsight.similarities.personality}}</text>
+              <view wx:if="{{item.matchInsight.similarities.tags.length > 0}}" class="insight-tags mt-xs">
+                <vibe-badge wx:for="{{item.matchInsight.similarities.tags}}" wx:key="*this" text="{{item}}" size="sm" />
+              </view>
+            </view>
+
+            <!-- 破冰锦囊 -->
+            <view wx:if="{{item.matchInsight.iceBreakers.length > 0}}" class="insight-section mt-sm">
+              <text class="insight-title">💡 破冰锦囊</text>
+              <text wx:for="{{item.matchInsight.iceBreakers}}" wx:key="*this" class="insight-ice-item text-sm">• {{item}}</text>
+            </view>
+          </view>
+
+          <!-- 联系方式 -->
+          <view class="match-contact mt-md">
+            <text class="contact-label">📱 联系方式</text>
+            <view class="contact-value-box">
+              <text class="contact-value">{{item.contact || '加载中...'}}</text>
+              <text wx:if="{{item.contact}}" class="contact-copy" bindtap="onCopyContact" data-contact="{{item.contact}}">复制</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
       <view wx:if="{{displayTags.length > 0}}" class="personality-preview glass-card mt-md">
         <text class="text-md text-bold">🧑 我的画像</text>
         <view class="preview-tags mt-sm">
@@ -144,157 +269,38 @@
         </view>
       </view>
 
-      <!-- 倒计时 -->
       <view class="countdown-box glass-card mt-lg">
-        <text class="text-xs text-muted">距下次匹配还有</text>
+        <text class="text-xs text-muted">{{countdownLabel || '距下次匹配还有'}}</text>
         <text class="text-xxl text-bold" style="color:#C4A484;">{{countdownText}}</text>
       </view>
       <text class="text-xs text-muted mt-sm" style="text-align:center;">下次匹配：{{nextMatchTime}}</text>
 
-      <!-- 开发者测试区 -->
-      <view class="mock-test-section mt-lg">
-        <view class="mock-test-divider" bindlongpress="onTabMockTest">
-          <text class="text-xs text-muted">— CampusLink v1.0 —</text>
-        </view>
+      <view class="flex-center mt-lg">
+        <glass-button text="🎯 参与下周匹配" type="primary" size="md" bindtap="onJoinWeeklyMatch" />
       </view>
     </view>
 
-    <!-- ================================================================== -->
-    <!-- 状态 C：匹配时段 → 卡片滑动 -->
-    <!-- ================================================================== -->
-    <view wx:elif="{{homepageState === 'matching'}}" class="matching-page">
-
-      <!-- 头部 -->
-      <view class="hall-header">
-        <view class="flex-row gap-sm">
-          <text class="text-xxl">{{vibeTheme.emoji || defaultEmoji}}</text>
-          <text class="text-xl font-title">推荐搭子</text>
-        </view>
-        <view class="flex-row gap-sm mt-sm">
-          <vibe-badge wx:for="{{vibeThemeList}}" wx:key="key" emoji="{{item.emoji}}" text="{{item.name}}" color="{{item.color}}" />
-          <vibe-badge wx:if="{{remaining > 0}}" emoji="✨" text="还剩 {{remaining}} 位宝藏校友" />
-          <vibe-badge wx:if="{{remaining === 0 && allVoted}}" emoji="✅" text="本周全部完成" />
-        </view>
+    <!-- ===== 开发者工具（长按版本号展开） ===== -->
+    <view wx:if="{{showDevTools}}" class="dev-global-tools">
+      <view class="mock-test-divider">
+        <text class="text-xs text-muted">🛠 开发者工具</text>
       </view>
-
-      <!-- 候选卡片流 -->
-      <view wx:if="{{currentCard}}" class="card-stack mt-lg">
-        <view class="buddy-card glass-card {{swipeTransition ? 'swipe-transition' : ''}}" bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd" style="transform: translateX({{swipeOffset}}px) rotateZ({{swipeRotate}}deg); opacity: {{swipeOpacity}};">
-
-          <!-- AI 微名片气泡 -->
-          <view class="card-ai-bubble">
-            <text class="ai-bubble-text">{{currentCard.aiSummary}}</text>
-            <view class="ai-bubble-tail"></view>
-          </view>
-
-          <!-- 用户基础信息 -->
-          <view class="card-body">
-            <view class="flex-row gap-md">
-              <view class="card-avatar">
-                <text class="avatar-emoji">{{currentCard.avatar || defaultAvatar}}</text>
-              </view>
-              <view class="flex-col">
-                <text class="text-lg text-bold">{{currentCard.name}}</text>
-                <text class="text-sm text-soft">{{currentCard.campus}} · {{currentCard.scheduleLabel}}</text>
-              </view>
-            </view>
-
-            <!-- 高光标签 -->
-            <view class="card-tags mt-md">
-              <vibe-badge
-                wx:for="{{currentCard.highlightTags}}"
-                wx:key="*this"
-                emoji="{{item.emoji}}"
-                text="{{item.label}}"
-                size="sm"
-              />
-            </view>
-
-            <!-- 子类别标签 -->
-            <view wx:if="{{currentCard.sharedSubCategories && currentCard.sharedSubCategories.length > 0}}" class="card-sub-categories mt-sm">
-              <vibe-badge
-                wx:for="{{currentCard.sharedSubCategories}}"
-                wx:key="value"
-                emoji="{{item.emoji || defaultEmoji}}"
-                text="{{item.label}}"
-                size="sm"
-                color="#C4D4C4"
-              />
-            </view>
-
-            <!-- 匹配解释 -->
-            <view class="card-match-info mt-md">
-              <text class="text-soft text-sm">匹配度：</text>
-              <text class="text-bold text-lg" style="color:{{vibeTheme.colorDark}};">{{currentCard.score}}分</text>
-              <text class="text-xs text-muted"> · 共同标签：</text>
-              <text class="text-xs text-soft">{{currentCard.sharedTags}}</text>
-            </view>
-          </view>
-
-          <!-- 三档投票按钮 -->
-          <view class="card-actions">
-            <view class="action-btn action-pass" bindtap="onVote" data-action="PASS">
-              <text class="action-emoji">❌</text>
-              <text class="action-label">不感兴趣</text>
-            </view>
-            <view class="action-btn action-meet" bindtap="onVote" data-action="MEET">
-              <text class="action-emoji">🤝</text>
-              <text class="action-label">可以认识</text>
-            </view>
-            <view class="action-btn action-heart" bindtap="onVote" data-action="HEART">
-              <text class="action-emoji">💚</text>
-              <text class="action-label">感兴趣</text>
-            </view>
-          </view>
-        </view>
+      <view class="flex-col flex-center" style="gap:12rpx;padding:16rpx;">
+        <glass-button text="🚀 触发云端匹配引擎" type="ghost" size="sm" bindtap="onTriggerMatchEngine" />
+        <text class="text-xs text-soft mock-test-hint">调用 weeklyMatchEngine 云函数</text>
+        <view style="height:8rpx;"></view>
+        <glass-button text="📢 触发放榜" type="ghost" size="sm" bindtap="onTriggerReveal" />
+        <text class="text-xs text-soft mock-test-hint">调用 revealMatch 云函数，放榜展示匹配结果</text>
       </view>
+    </view>
 
-      <!-- 全部投票完成（非模拟） -->
-      <view wx:if="{{allVoted && !mockTestActive}}" class="all-done glass-card mt-lg">
-        <text class="text-xxl">🎉</text>
-        <text class="text-lg text-bold mt-sm">本周盲选已完成</text>
-        <text class="text-sm text-soft mt-sm">下周一 21:00 放榜时，互相选择的人将解锁联系方式</text>
-        <view class="all-done-extras mt-md">
-          <glass-button text="查看投票记录" type="ghost" size="sm" />
-        </view>
-      </view>
-
-      <!-- 模拟匹配结果 -->
-      <view wx:elif="{{mockTestActive && allVoted}}" class="mock-results mt-lg">
-        <view class="flex-col flex-center" style="text-align:center;">
-          <text class="text-xxl">📊</text>
-          <text class="text-lg text-bold mt-sm">模拟匹配结果</text>
-        </view>
-        <view class="result-list mt-lg">
-          <view class="result-item" wx:for="{{matchResults}}" wx:key="candidateId">
-            <view class="result-item-header">
-              <text class="result-avatar">{{item.avatar}}</text>
-              <text class="text-bold">{{item.name}}</text>
-              <text class="result-score">{{item.score}}分</text>
-            </view>
-            <view class="result-item-detail">
-              <text>我的选择：{{item.myVote === 'HEART' ? '💚 感兴趣' : item.myVote === 'MEET' ? '🤝 可以认识' : '❌ 不感兴趣'}}</text>
-              <text>对方选择：{{item.theirVote === 'HEART' ? '💚 感兴趣' : item.theirVote === 'MEET' ? '🤝 可以认识' : '❌ 不感兴趣'}}</text>
-            </view>
-            <view class="result-status {{item.status}}">
-              <text wx:if="{{item.status === 'matched'}}">✅ 双向匹配成功！</text>
-              <text wx:elif="{{item.status === 'passed'}}">⏭️ 已跳过</text>
-              <text wx:else>❌ 对方未选择你</text>
-            </view>
-            <button wx:if="{{item.status === 'matched'}}" class="result-contact-btn" bindtap="onNavigateToChat" data-partner-id="{{item.candidateId}}">💬 查看联系方式</button>
-          </view>
-        </view>
-        <view class="flex-col flex-center mt-lg">
-          <glass-button text="🔄 重新测试" type="ghost" size="md" bindtap="resetMockTest" />
-        </view>
-      </view>
-
-      <!-- 底部空白 -->
-      <view style="height:80rpx;"></view>
+    <!-- 版本号（长按展开开发者工具） -->
+    <view class="flex-center" style="padding:24rpx 0 8rpx;">
+      <text class="text-xs text-muted" bindlongpress="onToggleDevTools" style="opacity:0.4;">Campus Link v1.0.0</text>
     </view>
 
     <!-- 加载状态 -->
-    <view wx:elif="{{homepageState === 'loading'}}" class="flex-center" style="height:80vh;">
+    <view wx:if="{{homepageState === 'loading'}}" class="flex-center" style="height:80vh;">
       <text class="text-lg text-soft">加载中...</text>
     </view>
 

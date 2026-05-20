@@ -35,7 +35,7 @@ page {
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
-  --font-serif: Georgia, 'Songti SC', STSong, SimSun, serif;
+  --font-serif: Georgia, 'Songti SC', STSong, 'Noto Serif CJK SC', 'Source Han Serif SC', SimSun, serif;
   --font-sans: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
 
   background: var(--color-bg);

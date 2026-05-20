@@ -117,6 +117,46 @@
   transform-origin: left center;
 }
 
+/* 性别选择器 */
+.gender-selector {
+  display: flex;
+  gap: 16rpx;
+}
+
+.gender-option {
+  flex: 1;
+  padding: 20rpx 0;
+  text-align: center;
+  background: rgba(247, 244, 239, 0.7);
+  border: 2rpx solid rgba(180, 160, 140, 0.18);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #3D322D;
+}
+
+.gender-option:active {
+  transform: scale(0.97);
+}
+
+.gender-active {
+  background: rgba(196, 164, 132, 0.2);
+  border-color: #C4A484;
+  font-weight: 500;
+}
+
+/* 选择器 */
+.picker-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.picker-arrow {
+  font-size: 36rpx;
+  color: #B8A898;
+  font-weight: 300;
+}
+
 /* 底部切换链接 */
 .form-footer {
   display: flex;

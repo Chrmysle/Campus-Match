@@ -6,7 +6,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 exports.main = async (event, context) => {
-  const { email, code, password } = event;
+  const { email, code, password, gender, grade, college } = event;
 
   if (!email || !code || !password) {
     return { success: false, error: '缺少必要参数' };
@@ -60,9 +60,12 @@ exports.main = async (event, context) => {
       isVerified: true,
       createdAt: db.serverDate(),
       userStatus: 'normal',
+      gender: gender || 0,
       campus: '',
       schedule: 'dayWalker',
-      genderPreference: { type: 'any', targetGenders: [] }
+      genderPreference: { type: 'any', targetGenders: [] },
+      grade: grade || 0,
+      college: college || ''
     };
 
     const res = await db.collection('users').add({ data: userData });
@@ -76,7 +79,9 @@ exports.main = async (event, context) => {
         email,
         name: userData.name,
         avatar: userData.avatar,
-        isVerified: true
+        isVerified: true,
+        grade: userData.grade,
+        college: userData.college
       }
     };
   } catch (err) {

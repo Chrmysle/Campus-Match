@@ -12,47 +12,85 @@
     <view class="profile-hero">
       <view class="profile-hero-bg"></view>
       <view class="profile-hero-content">
-        <view class="profile-avatar-ring">
+        <view class="profile-avatar-ring" bindtap="onUploadAvatar">
           <view class="profile-avatar">
-            <text class="avatar-emoji">{{userInfo.avatar}}</text>
+            <image wx:if="{{isRealAvatar}}" class="avatar-img" src="{{userInfo.avatar}}" mode="aspectFill" />
+            <text wx:else class="avatar-emoji">{{userInfo.avatar || '👤'}}</text>
+            <view class="avatar-upload-hint">📷</view>
           </view>
         </view>
-        <view class="profile-name-row">
-          <text wx:if="{{!editingName}}" class="profile-name">{{userInfo.name}}</text>
-          <view wx:if="{{!editingName}}" class="profile-edit-badge" bindtap="onStartEditName">
-            <text>✎</text>
-          </view>
-        </view>
-        <!-- 昵称编辑 -->
-        <view wx:if="{{editingName}}" class="name-edit-row">
-          <input class="name-input" type="entry" placeholder="输入昵称" value="{{nameInput}}" bindinput="onNameInput" maxlength="20" />
-          <view class="flex-row gap-sm" style="justify-content:center;margin-top:12rpx;">
-            <glass-button text="取消" type="ghost" size="sm" bindtap="onCancelEditName" />
-            <glass-button text="保存" type="primary" size="sm" bindtap="onSaveName" />
-          </view>
+        <view class="profile-name-row" bindlongpress="onEditProfile">
+          <text class="profile-name">{{userInfo.name}}</text>
         </view>
         <text class="profile-email">{{userInfo.email}}</text>
         <view class="profile-badges">
           <vibe-badge emoji="📍" text="{{userInfo.campus}}" size="sm" />
-          <vibe-badge emoji="🎯" text="{{vibeLabel}}" size="sm" />
+          <vibe-badge wx:if="{{gradeLabel !== '未设置'}}" emoji="🎓" text="{{gradeLabel}}" size="sm" />
+          <vibe-badge wx:if="{{collegeLabel !== '未设置'}}" emoji="🏛️" text="{{collegeLabel}}" size="sm" />
         </view>
-      </view>
+    </view>
     </view>
 
-    <!-- ===== 人格画像 ===== -->
-    <view class="glass-card profile-section">
-      <view class="section-header">
-        <text class="section-title font-title">人格画像</text>
-        <text class="section-subtitle">Personality</text>
-      </view>
-      <view class="big-five-bars">
-        <view wx:for="{{bigFiveList}}" wx:for-index="idx" wx:key="key" class="bf-bar-row">
-          <text class="bf-label">{{item.label}}</text>
-          <view class="bf-track">
-            <view class="bf-fill" style="width:{{item.width}}%;"></view>
-          </view>
-          <text class="bf-val">{{item.percent}}%</text>
+    <!-- ===== 编辑浮层（修改个人信息时显示） ===== -->
+    <view wx:if="{{editingGrade || editingCollege || editingName || editingContact}}" class="edit-overlay-mask" bindtap="onCancelAllEdit"></view>
+    <view wx:if="{{editingGrade || editingCollege || editingName || editingContact}}" class="edit-overlay-panel">
+
+      <view wx:if="{{editingName}}" class="edit-field">
+        <text class="edit-field-label">昵称</text>
+        <input class="edit-input" type="text" value="{{nameInput}}" placeholder="输入昵称" bindinput="onNameInput" maxlength="20" />
+        <view class="edit-actions">
+          <glass-button text="取消" type="ghost" size="sm" bindtap="onCancelEditName" />
+          <glass-button text="保存" type="primary" size="sm" bindtap="onSaveName" />
         </view>
+      </view>
+
+      <view wx:if="{{editingGrade}}" class="edit-field">
+        <text class="edit-field-label">年级</text>
+        <picker mode="selector" range="{{gradeList}}" range-key="label" bindchange="onGradeChange">
+          <view class="edit-picker">
+            <text>{{gradeLabel}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+        <view class="edit-actions">
+          <glass-button text="取消" type="ghost" size="sm" bindtap="onCancelEditGrade" />
+          <glass-button text="保存" type="primary" size="sm" bindtap="onSaveGrade" />
+        </view>
+      </view>
+
+      <view wx:if="{{editingCollege}}" class="edit-field">
+        <text class="edit-field-label">学院</text>
+        <picker mode="selector" range="{{collegeList}}" bindchange="onCollegeChange">
+          <view class="edit-picker">
+            <text>{{collegeLabel}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+        <view class="edit-actions">
+          <glass-button text="取消" type="ghost" size="sm" bindtap="onCancelEditCollege" />
+          <glass-button text="保存" type="primary" size="sm" bindtap="onSaveCollege" />
+        </view>
+      </view>
+
+      <view wx:if="{{editingContact}}" class="edit-field">
+        <text class="edit-field-label">联系方式</text>
+        <input class="edit-input" type="text" value="{{contactInput}}" placeholder="填写你的微信号" bindinput="onContactInput" maxlength="30" />
+        <view class="edit-actions">
+          <glass-button text="取消" type="ghost" size="sm" bindtap="onCancelEditContact" />
+          <glass-button text="保存" type="primary" size="sm" bindtap="onSaveContact" />
+        </view>
+      </view>
+
+    </view>
+
+    <!-- ===== AI 微名片 ===== -->
+    <view wx:if="{{userInfo.aiSummary}}" class="glass-card profile-section">
+      <view class="section-header">
+        <text class="section-title font-title">🤖 AI 微名片</text>
+        <text class="section-subtitle">AI Summary</text>
+      </view>
+      <view class="ai-summary-bubble">
+        <text class="ai-summary-text">{{userInfo.aiSummary}}</text>
       </view>
     </view>
 
@@ -90,34 +128,13 @@
       </view>
     </view>
 
-    <!-- ===== 匹配偏好 ===== -->
+    <!-- ===== 联系方式 ===== -->
     <view class="glass-card profile-section">
       <view class="section-header">
-        <text class="section-title font-title">匹配偏好</text>
-        <glass-button text="设置" type="ghost" size="sm" bindtap="onTogglePrefModal" />
+        <text class="section-title font-title">📞 联系方式</text>
       </view>
       <view class="pref-display">
-        <text class="pref-label">性别偏好</text>
-        <text class="pref-value">
-          {{genderPreference.type === 'any' ? '🌐 无偏好' : ''}}
-          {{genderPreference.type === 'same' ? '👥 优先同性' : ''}}
-          {{genderPreference.type === 'opposite' ? '💑 优先异性' : ''}}
-        </text>
-      </view>
-
-      <!-- 偏好弹窗 -->
-      <view wx:if="{{showPrefModal}}" class="pref-modal-mask" bindtap="onTogglePrefModal">
-        <view class="pref-modal glass-card" catchtap="">
-          <text class="section-title font-title">搭子性别偏好</text>
-          <view class="pref-options">
-            <view wx:for="{{['any','same','opposite']}}" wx:key="*this"
-              class="pref-option {{genderPreference.type === item ? 'pref-selected' : ''}}"
-              bindtap="onGenderPrefSelect" data-type="{{item}}">
-              <text>{{item === 'any' ? '🌐 无偏好' : item === 'same' ? '👥 优先同性' : '💑 优先异性'}}</text>
-            </view>
-          </view>
-          <glass-button text="确认" type="primary" size="md" bindtap="onSavePrefs" style="margin-top:32rpx;width:100%;" />
-        </view>
+        <text class="pref-value">{{userInfo.contact || '未设置'}}</text>
       </view>
     </view>
 
@@ -150,6 +167,9 @@
     <!-- ===== 底部 ===== -->
     <view class="profile-footer">
       <glass-button text="🔄 重新测试" type="ghost" size="md" bindtap="onRetakeQuiz" />
+    </view>
+    <view class="profile-logout">
+      <glass-button text="退出登录" type="ghost" size="md" bindtap="onLogout" />
     </view>
   </block>
 </view>

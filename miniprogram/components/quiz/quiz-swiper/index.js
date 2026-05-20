@@ -83,7 +83,7 @@ Component({
           wx.showToast({ title: '最多选' + maxSelect + '个', icon: 'none' });
           return;
         }
-        next = [...current, value];
+        next = current.concat([value]);
       }
       this.updateAnswer(id, next);
       this.triggerEvent('answer', { questionId: id, value: next, stage: this.data.stageKey });

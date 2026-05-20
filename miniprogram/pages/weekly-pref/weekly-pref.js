@@ -4,6 +4,9 @@ const WEEKLY_CONFIG = require('../../config/weeklyPreferenceConfig');
 
 Page({
   data: {
+    // 提交窗口检查
+    submissionOpen: true,
+
     // 步骤控制
     currentStep: 1,
     totalSteps: 4,
@@ -20,6 +23,7 @@ Page({
     // 步骤 3: 额外偏好
     expectation: 50,
     frequency: 'weekly2-3',
+    genderPreference: 'any',
 
     // 步骤 4: 确认
     canSubmit: false,
@@ -30,6 +34,10 @@ Page({
     subCategorySummary: '',
     defaultColor: '#C4A484',
     defaultEmptyArray: [],
+
+    // 暂停状态倒计时
+    closedCountdownText: '',
+    nextRevealTime: '',
 
     // 预计算的选中搭子类型对象（避免 WXML 中复杂表达式）
     selectedVibeTypeObjects: []
@@ -51,6 +59,18 @@ Page({
   },
 
   onLoad: function () {
+    // 检查提交窗口
+    var open = WEEKLY_CONFIG.isSubmissionOpen();
+    this.setData({
+      submissionOpen: open,
+      nextRevealTime: WEEKLY_CONFIG.getNextRevealTime().toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    });
+
+    if (!open) {
+      this._startClosedCountdown();
+      return;
+    }
+
     // 构造可选择的搭子类型列表
     const vibeTypeList = Object.keys(WEEKLY_CONFIG.vibeTypes).map(function (key) {
       var vt = WEEKLY_CONFIG.vibeTypes[key];
@@ -82,7 +102,7 @@ Page({
 
   onToggleVibeType: function (e) {
     const key = e.currentTarget.dataset.key;
-    var selected = [...this.data.selectedVibeTypes];
+    var selected = this.data.selectedVibeTypes.slice();
     var idx = selected.indexOf(key);
     if (idx > -1) {
       selected.splice(idx, 1);
@@ -142,7 +162,7 @@ Page({
   onToggleSubCategory: function (e) {
     var tabIndex = this.data.activeSubTab;
     var subKey = e.currentTarget.dataset.key;
-    var tabs = [...this.data.subCategoryTabs];
+    var tabs = this.data.subCategoryTabs.slice();
     var tab = tabs[tabIndex];
     if (!tab) return;
     var subs = tab.subCategories.map(function (s) {
@@ -205,6 +225,11 @@ Page({
     this.setData({ frequency: value, frequencyLabel: label });
   },
 
+  onGenderPrefSelect: function (e) {
+    var value = e.currentTarget.dataset.value;
+    this.setData({ genderPreference: value });
+  },
+
   onPrevStep3: function () {
     this.setData({ currentStep: 2 });
   },
@@ -222,6 +247,10 @@ Page({
   onSubmit: function () {
     var that = this;
     if (this.data.submitting) return;
+    if (!WEEKLY_CONFIG.isSubmissionOpen()) {
+      wx.showToast({ title: '提交已截止，请参与下周匹配', icon: 'none' });
+      return;
+    }
     this.setData({ submitting: true });
 
     // 构造完整数据
@@ -238,6 +267,7 @@ Page({
         expectation: this.data.expectation,
         frequency: this.data.frequency
       },
+      genderPreference: this.data.genderPreference,
       submittedAt: new Date().toISOString()
     };
 
@@ -247,6 +277,8 @@ Page({
     var userInfo = wx.getStorageSync('campusLink_user') || {};
     userInfo.weeklyMatchStatus = 'submitted';
     userInfo.weeklyMatchWeekLabel = weekLabel;
+    // 将性别偏好同步到用户记录（匹配引擎从此字段读取）
+    userInfo.genderPreference = { type: that.data.genderPreference, targetGenders: [] };
     wx.setStorageSync('campusLink_user', userInfo);
     console.log('[weekly-pref] saved locally:', weeklyPrefData);
 
@@ -264,7 +296,8 @@ Page({
           additionalPrefs: {
             expectation: that.data.expectation,
             frequency: that.data.frequency
-          }
+          },
+          genderPreference: that.data.genderPreference
         },
         success: function (res) {
           console.log('[weekly-pref] cloud save result:', res);
@@ -285,5 +318,32 @@ Page({
         wx.navigateBack({ delta: 1 });
       }, 1000);
     }
+  },
+
+  // ===== 提交暂停状态 =====
+
+  _startClosedCountdown: function () {
+    var update = function () {
+      var now = new Date();
+      var target = WEEKLY_CONFIG.getNextRevealTime();
+      var diff = target - now;
+      if (diff <= 0) {
+        this.setData({ closedCountdownText: '即将开启！' });
+        return;
+      }
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var text = '';
+      if (d > 0) text += d + '天 ';
+      text += h + '小时 ' + m + '分钟';
+      this.setData({ closedCountdownText: text });
+      this._cdTimer = setTimeout(update.bind(this), 60000);
+    }.bind(this);
+    update();
+  },
+
+  onUnload: function () {
+    if (this._cdTimer) clearTimeout(this._cdTimer);
   }
 });
