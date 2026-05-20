@@ -2,6 +2,6 @@
   "name": "generateAiSummary",
   "timeout": 15,
   "envVariables": {
-    "DEEPSEEK_API_KEY": "sk-8a0ec33feb384d1a98f5ad388db92971"
+    "DEEPSEEK_API_KEY": ""
   }
 }
